@@ -1,0 +1,70 @@
+@import "@fontsource/open-sans"; /* Regular */
+@import "@fontsource/open-sans/700.css"; /* Bold */
+@import "@fontsource/roboto";
+@import "@fontsource/lato";
+
+body {
+  margin: 0;
+  font-family: "Open Sans", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Lato", "Helvetica Neue", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #e8f0fe;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+
+/* This style for React Toast */
+@media (max-width: 600px) {
+  .Toastify__toast {
+    width: 50% !important; /* Set width to 50% on mobile */
+    min-width: 250px !important; /* Ensures readability */
+    right: 10px !important; /* Aligns it to the right */
+  }
+}
+
+/* Ensure the app container takes up full height */
+.app-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh; /* Full height */
+}
+
+/* Make content area expand to push footer down */
+.content {
+  flex: 1;
+}
+
+/* Footer styling */
+.footer {
+  color: white;
+  text-align: center;
+  padding: 10px;
+}
+
+.slider-container {
+  width: 100%;
+  max-width: 600px; /* Adjust the max width */
+  margin: auto;
+}
+
+.swiper-wrapper {
+  height: 300px; /* Set a uniform height for all slides */
+}
+
+.swiper-slide img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* Ensures images fit properly */
+  border-radius: 8px; /* Optional: Rounded corners */
+}
+
+/* Responsive - Adjusts image height for smaller screens */
+@media (max-width: 768px) {
+  .swiper-wrapper {
+    height: 200px; /* Adjust height for mobile */
+  }
+}

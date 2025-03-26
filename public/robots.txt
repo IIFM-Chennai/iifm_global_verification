@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+
+# Disallow search engines from accessing dashboard pages
+Disallow: /dashboard
+Disallow: /dashboard/*
+
+
+Sitemap: https://iifmglobleverification.web.app/sitemap.xml
