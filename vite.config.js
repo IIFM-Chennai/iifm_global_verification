@@ -7,17 +7,20 @@ export default defineConfig({
     react(),
     Sitemap({
       hostname: "https://iifmglobleverification.web.app", // Your Firebase Hosting URL
-      include: ["/", "/about", "/contact", "/login"], // Publicly accessible routes
-      exclude: [
+      include: [
+        "/", 
+        "/about", 
+        "/contact", 
+        "/login",
         "/dashboard",
         "/dashboard/manage-candidate",
         "/dashboard/add-candidate",
         "/dashboard/search-candidate",
         "/dashboard/candidate/:candidateId"
-      ], // Excluding protected admin routes
+      ], // Now including dashboard pages
 
       // disable automatic robots.txt creation
-      generateRobotsTxt : false,
+      generateRobotsTxt: false,
     }),
   ],
 });
