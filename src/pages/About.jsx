@@ -38,7 +38,7 @@ const About = () => {
       >
         {images.map((src, index) => (
           <SwiperSlide key={index} className="swiper-slide">
-            <img src={src} alt={`Training with Placement ${index + 1}`} />
+            <img src={src} loading="lazy" alt={`Training with Placement ${index + 1}`} />
           </SwiperSlide>
         ))}
       </Swiper>
@@ -71,6 +71,7 @@ const About = () => {
             alt="IIFM Training"
             width="100%"
             style={{ borderRadius: "10px" }}
+            loading="lazy"
           />
         </Box>
       </Box>
