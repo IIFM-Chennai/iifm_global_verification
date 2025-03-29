@@ -14,6 +14,8 @@ import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 
 const departments = ["HVAC", "IBMS", "MEP", "POWER PLANT", "WTP", "SAFETY"];
+const academicYears = ["2017-2018", "2018-2019", "2019-2020", "2020-2021", "2021-2022", "2022-2023", "2023-2024", "2024-2025", "2025-2026"];
+
 
 const AddCandidate = () => {
   const dispatch = useDispatch();
@@ -24,6 +26,7 @@ const AddCandidate = () => {
     registerNo: "",
     name: "",
     department: "",
+    academicYear: "",
     markSheet: null,
     idCardFront: null,
     idCardBack: null,
@@ -47,14 +50,14 @@ const AddCandidate = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!formData.registerNo || !formData.name || !formData.department || !formData.markSheet || !formData.idCardFront || !formData.idCardBack) {
+    if (!formData.registerNo || !formData.name || !formData.department || !formData.academicYear|| !formData.markSheet || !formData.idCardFront || !formData.idCardBack) {
       toast.error("All fields are required");
       return;
     }
 
     dispatch(addCandidate({ ...formData, setUploadProgress })).then((res) => {
       if (res.meta.requestStatus === "fulfilled") {
-        setFormData({ registerNo: "", name: "", department: "", markSheet: null, idCardFront: null, idCardBack: null });
+        setFormData({ registerNo: "", name: "", department: "", academicYear: "", markSheet: null, idCardFront: null, idCardBack: null });
         setPreview({ markSheet: "", idCardFront: "", idCardBack: "" });
         setUploadProgress({ markSheet: 0, idCardFront: 0, idCardBack: 0 });
         navigate("/dashboard");
@@ -71,6 +74,11 @@ const AddCandidate = () => {
         <TextField select fullWidth label="Department" name="department" value={formData.department} onChange={handleChange} margin="normal" required disabled={addCandidateLoading} >
           {departments.map((dept) => (
             <MenuItem key={dept} value={dept}>{dept}</MenuItem>
+          ))}
+        </TextField>
+        <TextField select fullWidth label="AcademicYear" name="academicYear" value={formData.academicYear} onChange={handleChange} margin="normal" required disabled={addCandidateLoading} >
+          {academicYears.map((years) => (
+            <MenuItem key={years} value={years}>{years}</MenuItem>
           ))}
         </TextField>
 

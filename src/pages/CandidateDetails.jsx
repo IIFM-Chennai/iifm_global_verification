@@ -58,6 +58,7 @@ const CandidateDetails = () => {
           <Typography variant="h6"><strong>Name:</strong> {candidate.name}</Typography>
           <Typography variant="h6"><strong>Register No:</strong> {candidate.registerNo}</Typography>
           <Typography variant="h6"><strong>Department:</strong> {candidate.department}</Typography>
+          <Typography variant="h6"><strong>academicYear:</strong> {candidate.academicYear}</Typography>
           <Typography variant="h6">
             <strong>Created At:</strong> {new Date(candidate.createdAt.seconds * 1000).toLocaleString()}
           </Typography>

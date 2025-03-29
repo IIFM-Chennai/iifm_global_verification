@@ -62,6 +62,7 @@ const SearchCandidates = () => {
                 <TableCell><strong>Name</strong></TableCell>
                 <TableCell><strong>Register No</strong></TableCell>
                 <TableCell><strong>Department</strong></TableCell>
+                <TableCell><strong>academicYear</strong></TableCell>
                 <TableCell><strong>Created At</strong></TableCell>
                 <TableCell><strong>Actions</strong></TableCell>
               </TableRow>
@@ -85,9 +86,8 @@ const SearchCandidates = () => {
                     <TableCell>{candidate.name}</TableCell>
                     <TableCell>{candidate.registerNo}</TableCell>
                     <TableCell>{candidate.department}</TableCell>
-                    <TableCell>
-                      {candidate.createdAt ? new Date(candidate.createdAt).toLocaleDateString() : "N/A"}
-                    </TableCell>
+                    <TableCell>{candidate.academicYear}</TableCell>
+                    <TableCell> {candidate.createdAt}</TableCell>
                     <TableCell>
                       <CandidateActions candidateId={candidate.id} />
                     </TableCell>

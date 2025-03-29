@@ -122,52 +122,8 @@ export const deleteCandidate = createAsyncThunk(
   }
 );
 
-//   try {
 
-//     // Validate Register No & Name
-//     if (!candidateData.registerNo || !/^\d+$/.test(candidateData.registerNo)) {
-//       toast.error("Register Number must be a valid number.");
-//       return rejectWithValue("Invalid Register Number.");
-//     }
-
-//     if (!candidateData.name || candidateData.name.trim().length < 3) {
-//       toast.error("Name must be at least 3 characters long.");
-//       return rejectWithValue("Invalid Name.");
-//     }
-
-//     // const marksheetUrl = await uploadImageToCloudinary(candidateData.markSheet, "MarkSheet");
-//     // const idCardFrontUrl = await uploadImageToCloudinary(candidateData.idCardFront, "ID Card (Front)");
-//     // const idCardBackUrl = await uploadImageToCloudinary(candidateData.idCardBack, "ID Card (Back)");
-//     const marksheetUrl = await uploadImageToFirebase(candidateData.markSheet, "markSheet", candidateData.registerNo);
-//     const idCardFrontUrl = await uploadImageToFirebase(candidateData.idCardFront, "Id Card Front", candidateData.registerNo);
-//     const idCardBackUrl = await uploadImageToFirebase(candidateData.idCardBack, "Id Card Back", candidateData.registerNo);
-
-
-//     // Ensure all URLs are valid before storing in Firestore
-//     if (!marksheetUrl || !idCardFrontUrl || !idCardBackUrl) {
-//       toast.error("Upload failed. Please check file formats and try again.");
-//       return rejectWithValue("Invalid file upload.");
-//     }
-
-//     await addDoc(collection(db, "candidateData"), {
-//       registerNo: candidateData.registerNo,
-//       name: candidateData.name.toLowerCase(),
-//       department: candidateData.department,
-//       markSheet: marksheetUrl,
-//       idCardFront: idCardFrontUrl,
-//       idCardBack: idCardBackUrl,
-//       createdAt: serverTimestamp(),
-//     });
-
-//     toast.success("Candidate added successfully");
-//     return { success: true };
-//   } catch (error) {
-//     toast.error("Error adding candidate");
-//     return rejectWithValue(error.message);
-//   }
-// });
-
-export const addCandidate = createAsyncThunk("admin/addCandidate", async ({ registerNo, name, department, markSheet, idCardFront, idCardBack, setUploadProgress }, { rejectWithValue }) => {
+export const addCandidate = createAsyncThunk("admin/addCandidate", async ({ registerNo, name, department, academicYear ,markSheet, idCardFront, idCardBack, setUploadProgress }, { rejectWithValue }) => {
   try {
     if (!registerNo || !/^\d+$/.test(registerNo)) {
       toast.error("Register Number must be a valid number.");
@@ -187,6 +143,7 @@ export const addCandidate = createAsyncThunk("admin/addCandidate", async ({ regi
       registerNo,
       name: name.toLowerCase(),
       department,
+      academicYear,
       markSheet: marksheetUrl,
       idCardFront: idCardFrontUrl,
       idCardBack: idCardBackUrl,
@@ -230,7 +187,7 @@ export const searchCandidates = createAsyncThunk(
         results.push({
           id: doc.id,
           ...candidate,
-          createdAt: candidate.createdAt ? candidate.createdAt.toDate().toISOString() : null,
+          createdAt: candidate.createdAt ? new Date(candidate.createdAt.seconds * 1000).toLocaleString() : null,
         });
       });
 
