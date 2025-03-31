@@ -7,7 +7,9 @@ const Dashboard = () => {
 
   return (
     <Box sx={{ flexGrow: 1, p: 4, display: "flex", flexDirection: "column", alignItems: "center" }}>
-      <Typography variant="h4" gutterBottom align="center" color="2c3e50" marginBottom={4} fontWeight={700} fontSize={"2rem"}>
+      <Typography variant="h4"  color="#2c3e50"
+      sx={{  fontFamily: "Open Sans, Roboto, Oxygen, Ubuntu, Cantarell, Lato, Helvetica Neue, sans-serif",}}
+      gutterBottom align="center" marginBottom={4} fontWeight={700} fontSize={"2rem"}>
         Admin Dashboard
       </Typography>
 
@@ -83,7 +85,7 @@ const Dashboard = () => {
               Search Candidate
               </Typography>
               <Typography variant="body2" align="center" color="textSecondary">
-              Find a candidate for verification.
+              Find a candidate for verification. Limit latest 50 candidates. 
               </Typography>
             </CardContent>
           </CardActionArea>

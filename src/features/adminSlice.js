@@ -1,20 +1,35 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { collection, Timestamp, getDocs, getDoc,doc, where, addDoc, serverTimestamp, deleteDoc, query, orderBy, limit, startAfter } from "firebase/firestore";
+import { collection, Timestamp, getDocs, getDoc, doc, where, addDoc, serverTimestamp, deleteDoc, query, orderBy, limit, startAfter } from "firebase/firestore";
 import { db } from "../config/firebaseConfig";
-// import uploadImageToCloudinary from '../config/cloudinaryUpload';
 import { toast } from "react-toastify";
 import { uploadImageToFirebase, deleteImageFromStorage } from "../utils/firebassImages";
 
 
 
-// Fetch department-wise count
+// Pre-defined list of academic years (update based on your needs)
+const predefinedAcademicYears = [
+  "2017-2018",
+  "2018-2019",
+  "2019-2020",
+  "2020-2021",
+  "2021-2022",
+  "2022-2023",
+  "2023-2024",
+  "2024-2025",
+  "2025-2026"
+];
+
+
 export const fetchCandidateCount = createAsyncThunk(
   "admin/fetchCandidateCount",
   async (_, { rejectWithValue }) => {
     try {
       const q = collection(db, "candidateData");
       const querySnapshot = await getDocs(q);
+
       let total = 0;
+
+      // Initialize department and academic year counts with 0
       let departmentCounts = {
         HVAC: 0,
         IBMS: 0,
@@ -24,19 +39,33 @@ export const fetchCandidateCount = createAsyncThunk(
         SAFETY: 0,
       };
 
+      let academicYearCounts = predefinedAcademicYears.reduce((acc, year) => {
+        acc[year] = 0;
+        return acc;
+      }, {});
+
       querySnapshot.forEach((doc) => {
         const data = doc.data();
         total++;
 
-        // Normalize the department name (replace spaces with underscores)
-        const normalizedDepartment = data.department.toUpperCase().replace(/\s+/g, "_");
-
+        // Normalize department names
+        const normalizedDepartment = data.department?.toUpperCase().replace(/\s+/g, "_");
         if (departmentCounts[normalizedDepartment] !== undefined) {
           departmentCounts[normalizedDepartment]++;
         }
+
+        // Academic Year count
+        if (data.academicYear) {
+          const year = data.academicYear;
+
+          // Increment the count if the year exists in Firestore
+          if (academicYearCounts[year] !== undefined) {
+            academicYearCounts[year]++;
+          }
+        }
       });
 
-      return { total, departmentCounts };
+      return { total, departmentCounts, academicYearCounts };
     } catch (error) {
       return rejectWithValue(error.message);
     }
@@ -95,7 +124,7 @@ export const deleteCandidate = createAsyncThunk(
       const candidateData = candidateSnap.data();
 
       // Extract image URLs
-      const { markSheet, idCardFront, idCardBack } = candidateData;    
+      const { markSheet, idCardFront, idCardBack } = candidateData;
 
       // Delete all candidate images
       await Promise.all([
@@ -123,7 +152,7 @@ export const deleteCandidate = createAsyncThunk(
 );
 
 
-export const addCandidate = createAsyncThunk("admin/addCandidate", async ({ registerNo, name, department, academicYear ,markSheet, idCardFront, idCardBack, setUploadProgress }, { rejectWithValue }) => {
+export const addCandidate = createAsyncThunk("admin/addCandidate", async ({ registerNo, name, department, academicYear, markSheet, idCardFront, idCardBack, setUploadProgress }, { rejectWithValue }) => {
   try {
     if (!registerNo || !/^\d+$/.test(registerNo)) {
       toast.error("Register Number must be a valid number.");
@@ -160,44 +189,54 @@ export const addCandidate = createAsyncThunk("admin/addCandidate", async ({ regi
 
 export const searchCandidates = createAsyncThunk(
   "search/searchCandidates",
-  async ({ searchQuery }, { rejectWithValue }) => {
+  async ({ searchQuery, department, academicYear }, { rejectWithValue }) => {
     try {
-      if (!searchQuery.trim()) {
-        toast.error("Search query cannot be empty!");
-        return rejectWithValue("Empty search query");
+      if (!searchQuery.trim() && !department && !academicYear) {
+        toast.error("Please select at least one search or filter option!");
+        return rejectWithValue("No filters or search query provided");
       }
 
       let candidatesRef = collection(db, "candidateData");
-      let searchQueryRef;
+      
+      // Apply limit() to Firestore query (max 50 candidates)
+      const candidatesQuery = query(candidatesRef, limit(50));
 
-      if (!isNaN(searchQuery)) {
-        // Exact Match for Register Number
-        searchQueryRef = query(candidatesRef, where("registerNo", "==", searchQuery));
-      } else {
-        // Exact Match for Name (Case-Insensitive)
-        searchQueryRef = query(candidatesRef, where("name", "==", searchQuery.toLowerCase()));
-      }
+      // Fetch only 50 candidates from Firestore
+      const querySnapshot = await getDocs(candidatesQuery);
 
-      const querySnapshot = await getDocs(searchQueryRef);
-      let results = [];
+      let candidates = [];
 
       querySnapshot.forEach((doc) => {
         let candidate = doc.data();
 
-        results.push({
-          id: doc.id,
-          ...candidate,
-          createdAt: candidate.createdAt ? new Date(candidate.createdAt.seconds * 1000).toLocaleString() : null,
-        });
+        // ✅ Apply filtering manually in JS
+        if (
+          (!searchQuery.trim() ||
+            candidate.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            candidate.registerNo.includes(searchQuery)) &&
+          (!department || candidate.department === department) &&
+          (!academicYear || candidate.academicYear === academicYear)
+        ) {
+          candidates.push({
+            id: doc.id,
+            ...candidate,
+            createdAt: candidate.createdAt
+              ? new Date(candidate.createdAt.seconds * 1000).toLocaleString()
+              : null,
+          });
+        }
       });
 
-      if (results.length === 0) {
+      // ✅ Sort by createdAt (latest candidates first)
+      candidates.sort((a, b) => (b.createdAt > a.createdAt ? 1 : -1));
+
+      if (candidates.length === 0) {
         toast.error("No candidates found!");
       } else {
-        toast.success(`Found ${results.length} candidate(s)!`);
+        toast.success(`Found ${candidates.length} candidate(s)!`);
       }
 
-      return results;
+      return candidates;
     } catch (error) {
       toast.error("Error searching candidates");
       return rejectWithValue(error.message);
@@ -205,11 +244,13 @@ export const searchCandidates = createAsyncThunk(
   }
 );
 
+
 const adminSlice = createSlice({
   name: "admin",
   initialState: {
     totalCandidates: 0,
     departmentCounts: {},
+    academicYearCounts: {},
 
     candidates: [],
     lastVisibleDoc: null,
@@ -237,6 +278,7 @@ const adminSlice = createSlice({
       .addCase(fetchCandidateCount.fulfilled, (state, action) => {
         state.totalCandidates = action.payload.total;
         state.departmentCounts = action.payload.departmentCounts;
+        state.academicYearCounts = action.payload.academicYearCounts;
       })
       .addCase(fetchCandidates.pending, (state) => {
         state.loading = true;

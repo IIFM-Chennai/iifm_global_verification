@@ -10,6 +10,8 @@ import {
 import { toast } from "react-toastify";
 import Spiner from '../components/Spiner'
 import CandidateActions from "../components/CandiateAction";
+import { useNavigate } from "react-router-dom";  
+
 
 // Department to image mapping
 const departmentImages = {
@@ -24,7 +26,8 @@ const departmentImages = {
 
 const ManageCandidate = () => {
   const dispatch = useDispatch();
-  const { totalCandidates, departmentCounts, candidates, lastVisibleDoc, error } = useSelector(state => state.admin);
+  const navigate = useNavigate();
+  const { totalCandidates, departmentCounts, academicYearCounts,candidates, error } = useSelector(state => state.admin);
 
   const [page, setPage] = useState(1);
   const pageSize = 5;
@@ -83,15 +86,6 @@ const ManageCandidate = () => {
           {error}
         </Typography>
       )}
-      {/* 
-      <Stack direction={{ xs: "column", sm: "row" }} mb={3}>
-        <Card sx={{ flex: 1, textAlign: "center" }}>
-          <CardContent>
-            <Typography variant="h6">Total Candidates</Typography>
-            <Typography variant="h4" color="primary">{totalCandidates}</Typography>
-          </CardContent>
-        </Card>
-      </Stack> */}
 
       {/* Total Candidates Card */}
       <Box
@@ -102,6 +96,7 @@ const ManageCandidate = () => {
         }}
       >
         <Card
+         onClick={() => navigate(`/dashboard/manage-candidate/total-candidate`)}
           sx={{
             display: 'flex',
             flexDirection: 'column',
@@ -123,11 +118,11 @@ const ManageCandidate = () => {
               p: { xs: 3, md: 3 }
             }}
           >
-            <Typography  color="#2c3e50" variant="h3" sx={{
+            <Typography color="#2c3e50" variant="h3" sx={{
               fontWeight: 'bold', mb: 1,
               fontFamily: "Open Sans, Roboto, Oxygen, Ubuntu, Cantarell, Lato, Helvetica Neue, sans-serif",
               fontSize: { xs: '28px', sm: '32px', md: '36px' },  // Responsive font size
-          }}>
+            }}>
               Total Candidates
             </Typography>
             <Typography variant="h3" color="secondary">
@@ -175,6 +170,7 @@ const ManageCandidate = () => {
 
           return (
             <Card
+            onClick={() => navigate(`/dashboard/manage-candidate/${formattedDept.toLowerCase()}`)}
               key={dept}
               sx={{
                 display: 'flex',
@@ -206,31 +202,73 @@ const ManageCandidate = () => {
       </Box>
 
 
-      {/* old card view */}
+      {/* New Academic Year Card */}
 
-      {/* <Stack direction={{ xs: "column", sm: "row" }} spacing={2} mb={3}>
-      <Card sx={{ flex: 1, textAlign: "center" }}>
-          <CardContent>
-            <Typography variant="h6">Total Candidates</Typography>
-            <Typography variant="h4" color="primary">{totalCandidates}</Typography>
-          </CardContent>
-        </Card>
+      <Typography
+        variant="h3"
+        color="#2c3e50"
+        sx={{
+          fontFamily: "Open Sans, Roboto, Oxygen, Ubuntu, Cantarell, Lato, Helvetica Neue, sans-serif",
+          fontWeight: 'bold',
+          mb: 2,
+          fontSize: { xs: '28px', sm: '32px', md: '36px' },     // Responsive font size
+          textAlign: { xs: 'center', md: 'left' }               // Centered on mobile, left on desktop
+        }}
+      >
+        Academic Years
+      </Typography>
 
-      {Object.entries(departmentCounts).map(([dept, count]) => {
-          // Format department names: Replace "_" with space (e.g., "POWER_PLANT" -> "Power Plant")
-          const formattedDept = dept.replace(/_/g, " ").toLowerCase().replace(/\b\w/g, c => c.toUpperCase());
+      {/* Academic Year Cards */}
+      <Box
+        sx={{
+          display: 'grid',
+          gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)' },
+          gap: 3,
+          p: 3
+        }}
+      >
+        {Object.entries(academicYearCounts).map(([year, count]) => (
+          <Card
+          onClick={() => navigate(`/dashboard/manage-candidate/${year}`)}
+            key={year}
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: '100%',
+              height: { xs: 'auto', md: '120px' },                // Same height as department cards
+              boxShadow: 3,
+              transition: 'transform 0.3s',
+              '&:hover': { transform: 'scale(1.05)' }             // Hover effect
+            }}
+          >
+            <CardContent
+              sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                p: { xs: 2, md: 3 }
+              }}
+            >
+              <Typography
+                component="h3"
+                variant="h5"
+                sx={{ fontWeight: 'bold', mb: 1 }}
+              >
+                {year}
+              </Typography>
+              <Typography variant="h6" color="secondary">
+                {count}
+              </Typography>
+            </CardContent>
+          </Card>
+        ))}
+      </Box>
 
-          return (
-            <Card key={dept} sx={{ flex: 1, textAlign: "center" }}>
-              <CardContent>
-                <Typography variant="h6">{formattedDept.toUpperCase()}</Typography>
-                <Typography variant="h4" color="secondary">{count}</Typography>
-              </CardContent>
-            </Card>
-          );
-        })}
-      </Stack> */}
 
+        {/* List for candidates table */}
       <Paper sx={{ width: "100%", overflow: "hidden" }}>
         <TableContainer>
           <Table>
