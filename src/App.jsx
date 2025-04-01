@@ -13,7 +13,6 @@ import CandidateDetails from './pages/CandidateDetails';
 import Contact from './pages/Contact';
 import Footer from './components/Footer';
 import About from './pages/About';
-import CandidateList from './pages/CandidatesList';
 
 
 function App() {
@@ -41,7 +40,6 @@ function App() {
         <Route element={<ProtectedRoute />}>
           <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/dashboard/manage-candidate" element={<ManageCandidate />} />
-            <Route path="/dashboard/manage-candidate/:searchQuery" element={<CandidateList />} />
             <Route path="/dashboard/add-candidate" element={<AddCandidate />} />
             <Route path="/dashboard/search-candidate" element={<SearchCandidate />} />
             <Route path="/dashboard/candidate/:candidateId" element={<CandidateDetails />} />

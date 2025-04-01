@@ -1,10 +1,44 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { collection, Timestamp, getDocs, getDoc, doc, where, addDoc, serverTimestamp, deleteDoc, query, orderBy, limit, startAfter } from "firebase/firestore";
+import { collection, Timestamp, getDocs, increment, getDoc, doc, addDoc, serverTimestamp, deleteDoc, query, orderBy, limit, startAfter, setDoc } from "firebase/firestore";
 import { db } from "../config/firebaseConfig";
 import { toast } from "react-toastify";
 import { uploadImageToFirebase, deleteImageFromStorage } from "../utils/firebassImages";
 
 
+
+export const updateCandidateCounts = async (department, academicYear, isAdding = true) => {
+  const countDocRef = doc(db, "CandidateTotalCount", "countsSummary");
+
+  try {
+    const docSnapshot = await getDoc(countDocRef);
+    let currentData = docSnapshot.exists() ? docSnapshot.data() : {};
+
+    let departmentCounts = currentData.departmentCounts || {};
+    let academicYearCounts = currentData.academicYearCounts || {};
+
+    // Ensure department and academicYear exist in counts
+    if (!departmentCounts[department]) departmentCounts[department] = 0;
+    if (!academicYearCounts[academicYear]) academicYearCounts[academicYear] = 0;
+
+    const countChange = isAdding ? 1 : -1; // Increment if adding, decrement if deleting
+
+    // ✅ Correct way to update nested objects
+    await setDoc(
+      countDocRef,
+      {
+        totalCount: increment(countChange),
+        departmentCounts: { ...departmentCounts, [department]: increment(countChange) },
+        academicYearCounts: { ...academicYearCounts, [academicYear]: increment(countChange) },
+        updatedAt: new Date(),
+      },
+      { merge: true }
+    );
+
+    console.log(`Counts updated successfully (${isAdding ? "Added" : "Deleted"})`);
+  } catch (error) {
+    console.error("Error updating candidate count:", error);
+  }
+};
 
 // Pre-defined list of academic years (update based on your needs)
 const predefinedAcademicYears = [
@@ -20,57 +54,57 @@ const predefinedAcademicYears = [
 ];
 
 
-export const fetchCandidateCount = createAsyncThunk(
-  "admin/fetchCandidateCount",
-  async (_, { rejectWithValue }) => {
-    try {
-      const q = collection(db, "candidateData");
-      const querySnapshot = await getDocs(q);
+// export const fetchCandidateCount = createAsyncThunk(
+//   "admin/fetchCandidateCount",
+//   async (_, { rejectWithValue }) => {
+//     try {
+//       const q = collection(db, "candidateData");
+//       const querySnapshot = await getDocs(q);
 
-      let total = 0;
+//       let total = 0;
 
-      // Initialize department and academic year counts with 0
-      let departmentCounts = {
-        HVAC: 0,
-        IBMS: 0,
-        MEP: 0,
-        POWER_PLANT: 0,
-        WTP: 0,
-        SAFETY: 0,
-      };
+//       // Initialize department and academic year counts with 0
+//       let departmentCounts = {
+//         HVAC: 0,
+//         IBMS: 0,
+//         MEP: 0,
+//         POWER_PLANT: 0,
+//         WTP: 0,
+//         SAFETY: 0,
+//       };
 
-      let academicYearCounts = predefinedAcademicYears.reduce((acc, year) => {
-        acc[year] = 0;
-        return acc;
-      }, {});
+//       let academicYearCounts = predefinedAcademicYears.reduce((acc, year) => {
+//         acc[year] = 0;
+//         return acc;
+//       }, {});
 
-      querySnapshot.forEach((doc) => {
-        const data = doc.data();
-        total++;
+//       querySnapshot.forEach((doc) => {
+//         const data = doc.data();
+//         total++;
 
-        // Normalize department names
-        const normalizedDepartment = data.department?.toUpperCase().replace(/\s+/g, "_");
-        if (departmentCounts[normalizedDepartment] !== undefined) {
-          departmentCounts[normalizedDepartment]++;
-        }
+//         // Normalize department names
+//         const normalizedDepartment = data.department?.toUpperCase().replace(/\s+/g, "_");
+//         if (departmentCounts[normalizedDepartment] !== undefined) {
+//           departmentCounts[normalizedDepartment]++;
+//         }
 
-        // Academic Year count
-        if (data.academicYear) {
-          const year = data.academicYear;
+//         // Academic Year count
+//         if (data.academicYear) {
+//           const year = data.academicYear;
 
-          // Increment the count if the year exists in Firestore
-          if (academicYearCounts[year] !== undefined) {
-            academicYearCounts[year]++;
-          }
-        }
-      });
+//           // Increment the count if the year exists in Firestore
+//           if (academicYearCounts[year] !== undefined) {
+//             academicYearCounts[year]++;
+//           }
+//         }
+//       });
 
-      return { total, departmentCounts, academicYearCounts };
-    } catch (error) {
-      return rejectWithValue(error.message);
-    }
-  }
-);
+//       return { total, departmentCounts, academicYearCounts };
+//     } catch (error) {
+//       return rejectWithValue(error.message);
+//     }
+//   }
+// );
 
 
 export const fetchCandidates = createAsyncThunk(
@@ -104,7 +138,6 @@ export const fetchCandidates = createAsyncThunk(
       lastVisibleDoc: snapshot.docs.length > 0
         ? snapshot.docs[snapshot.docs.length - 1].data().createdAt.toJSON()  // Convert Firestore Timestamp to JSON
         : null,
-      totalCount: snapshot.size
     };
   }
 );
@@ -124,7 +157,7 @@ export const deleteCandidate = createAsyncThunk(
       const candidateData = candidateSnap.data();
 
       // Extract image URLs
-      const { markSheet, idCardFront, idCardBack } = candidateData;
+      const { markSheet, idCardFront, idCardBack, department, academicYear } = candidateData;
 
       // Delete all candidate images
       await Promise.all([
@@ -135,6 +168,9 @@ export const deleteCandidate = createAsyncThunk(
 
       // Delete candidate document from Firestore
       await deleteDoc(candidateRef);
+
+      // ✅ Update candidate counts after deletion
+      await updateCandidateCounts(department, academicYear, false);
 
       // Remove from search results in the store
       const currentSearchResults = getState().admin.searchCandidatesData;
@@ -179,6 +215,9 @@ export const addCandidate = createAsyncThunk("admin/addCandidate", async ({ regi
       createdAt: serverTimestamp(),
     });
 
+    // ✅ Update candidate counts after adding
+    await updateCandidateCounts(department, academicYear, true);
+
     toast.success("Candidate added successfully");
     return { success: true };
   } catch (error) {
@@ -197,7 +236,7 @@ export const searchCandidates = createAsyncThunk(
       }
 
       let candidatesRef = collection(db, "candidateData");
-      
+
       // Apply limit() to Firestore query (max 50 candidates)
       const candidatesQuery = query(candidatesRef, limit(50));
 
@@ -245,6 +284,35 @@ export const searchCandidates = createAsyncThunk(
 );
 
 
+
+
+export const fetchCandidateCount = createAsyncThunk(
+  "admin/fetchCandidateCount",
+  async (_, { rejectWithValue }) => {
+    try {
+      // ✅ Reference to the count document 
+      const countDocRef = doc(db, "CandidateTotalCount", "countsSummary");
+      const countSnap = await getDoc(countDocRef);
+
+      if (!countSnap.exists()) {
+        toast.error("Candidate counts not found.");
+        return rejectWithValue("Candidate counts not found.");
+      }
+
+      const countData = countSnap.data();
+
+      // ✅ Convert Firestore Timestamp to ISO String for Redux
+      return {
+        ...countData,
+        updatedAt: countData.updatedAt?.toDate().toISOString() || null,
+      };
+    } catch (error) {
+      toast.error("Error fetching candidate counts.");
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
 const adminSlice = createSlice({
   name: "admin",
   initialState: {
@@ -276,7 +344,7 @@ const adminSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(fetchCandidateCount.fulfilled, (state, action) => {
-        state.totalCandidates = action.payload.total;
+        state.totalCandidates = action.payload.totalCount;
         state.departmentCounts = action.payload.departmentCounts;
         state.academicYearCounts = action.payload.academicYearCounts;
       })
@@ -287,7 +355,6 @@ const adminSlice = createSlice({
         state.loading = false;
         state.candidates = action.payload.candidates;
         state.lastVisibleDoc = action.payload.lastVisibleDoc; // Now safely stored as JSON
-        state.totalCount = action.payload.totalCount;
       })
       .addCase(fetchCandidates.rejected, (state, action) => {
         state.loading = false;

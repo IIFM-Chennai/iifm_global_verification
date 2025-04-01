@@ -10,7 +10,6 @@ import {
 import { toast } from "react-toastify";
 import Spiner from '../components/Spiner'
 import CandidateActions from "../components/CandiateAction";
-import { useNavigate } from "react-router-dom";  
 
 
 // Department to image mapping
@@ -26,7 +25,6 @@ const departmentImages = {
 
 const ManageCandidate = () => {
   const dispatch = useDispatch();
-  const navigate = useNavigate();
   const { totalCandidates, departmentCounts, academicYearCounts,candidates, error } = useSelector(state => state.admin);
 
   const [page, setPage] = useState(1);
@@ -96,7 +94,6 @@ const ManageCandidate = () => {
         }}
       >
         <Card
-         onClick={() => navigate(`/dashboard/manage-candidate/total-candidate`)}
           sx={{
             display: 'flex',
             flexDirection: 'column',
@@ -105,6 +102,7 @@ const ManageCandidate = () => {
             width: { xs: '100%', sm: '60%', md: '33%' },        // Smaller width on desktop
             height: { xs: 'auto', md: '180px' },                // Reduced height on desktop
             boxShadow: 3,
+            cursor : "pointer",
             transition: 'transform 0.3s',
             '&:hover': { transform: 'scale(1.05)' }             // Hover effect
           }}
@@ -155,7 +153,7 @@ const ManageCandidate = () => {
           display: 'flex',
           flexWrap: 'wrap',
           justifyContent: 'center',
-          gap: 2,
+          gap: 3,
           mb: 3
         }}
       >
@@ -170,7 +168,6 @@ const ManageCandidate = () => {
 
           return (
             <Card
-            onClick={() => navigate(`/dashboard/manage-candidate/${formattedDept.toLowerCase()}`)}
               key={dept}
               sx={{
                 display: 'flex',
@@ -224,13 +221,13 @@ const ManageCandidate = () => {
           display: 'grid',
           gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)' },
           gap: 3,
-          p: 3
+          p: 3,
+     
         }}
       >
         {Object.entries(academicYearCounts).map(([year, count]) => (
           <Card
-          onClick={() => navigate(`/dashboard/manage-candidate/${year}`)}
-            key={year}
+          key={year}
             sx={{
               display: 'flex',
               flexDirection: 'column',
@@ -266,6 +263,21 @@ const ManageCandidate = () => {
           </Card>
         ))}
       </Box>
+
+      
+      <Typography
+        variant="h3"
+        color="#2c3e50"
+        sx={{
+          fontFamily: "Open Sans, Roboto, Oxygen, Ubuntu, Cantarell, Lato, Helvetica Neue, sans-serif",
+          fontWeight: 'bold',
+          mb: 4,
+          fontSize: { xs: '28px', sm: '32px', md: '36px' },     // Responsive font size
+          textAlign: { xs: 'center', md: 'left' }               // Centered on mobile, left on desktop
+        }}
+      >
+        Candidates List
+      </Typography>
 
 
         {/* List for candidates table */}

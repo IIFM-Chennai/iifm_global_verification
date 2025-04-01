@@ -76,7 +76,7 @@ const AddCandidate = () => {
             <MenuItem key={dept} value={dept}>{dept}</MenuItem>
           ))}
         </TextField>
-        <TextField select fullWidth label="AcademicYear" name="academicYear" value={formData.academicYear} onChange={handleChange} margin="normal" required disabled={addCandidateLoading} >
+        <TextField select sx={{marginBottom : 3}} fullWidth label="Academic Year" name="academicYear" value={formData.academicYear} onChange={handleChange} margin="normal" required disabled={addCandidateLoading} >
           {academicYears.map((years) => (
             <MenuItem key={years} value={years}>{years}</MenuItem>
           ))}
