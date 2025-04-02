@@ -1,14 +1,15 @@
 import { useState } from "react";
-import { AppBar, Toolbar, Button, Menu, MenuItem, Avatar, Box, IconButton, Drawer, List, ListItem, ListItemText, useMediaQuery } from "@mui/material";
+import { AppBar, Toolbar, Button, Menu, MenuItem, Box, IconButton, Drawer, List, ListItem, ListItemText, useMediaQuery } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import { useSelector, useDispatch } from "react-redux";
 import { logoutUser } from "../features/authSlice"; // Import logout action
 import { Link, useNavigate } from "react-router-dom";
+import SettingsIcon from '@mui/icons-material/Settings';
 
 const Navbar = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { isAuth, user } = useSelector((state) => state.auth);
+  const { isAuth, user} = useSelector((state) => state.auth);
   const [anchorEl, setAnchorEl] = useState(null);
   const [mobileOpen, setMobileOpen] = useState(false);
   const isMobile = useMediaQuery("(max-width: 768px)"); // Detects mobile screens
@@ -70,7 +71,7 @@ const Navbar = () => {
             <Drawer anchor="right" open={mobileOpen} onClose={handleDrawerToggle} >
               <List sx={{ width: 200 }}>
                 <ListItem  component={Link} to="/" onClick={handleDrawerToggle}>
-                  <ListItemText primary="Home" sx={{color : "black"}}/>
+                  <ListItemText primary="Global Verification" sx={{color : "black"}}/>
                 </ListItem>
                 <ListItem  component={Link} to="/about" onClick={handleDrawerToggle}>
                   <ListItemText primary="About" sx={{color : "black"}}/>
@@ -85,7 +86,7 @@ const Navbar = () => {
                       <ListItemText primary="Dashboard" sx={{color : "black"}}/>
                     </ListItem>
                     <ListItem  onClick={handleLogout}>
-                      <ListItemText primary="Logout" sx={{color : "black"}}/>
+                      <ListItemText sx={{color : "black"}}>{user && user.email.split("@gmail.com")[0] + " "}Logout</ListItemText>
                     </ListItem>
                   </>
                 ) : (
@@ -99,7 +100,7 @@ const Navbar = () => {
         ) : (
           // Desktop Navigation
           <Box sx={{ display: "flex", alignItems: "center" }}>
-            <Button component={Link} to="/" color="rgb(255, 255, 255)" sx={{ fontFamily: "Open Sans, Roboto, Oxygen, Ubuntu, Cantarell, Lato, Helvetica Neue, sans-serif", fontSize : "1rem", fontWeight : "600" , textDecoration : "none", textTransform: "none"}}>Home</Button>
+            <Button component={Link} to="/" color="rgb(255, 255, 255)" sx={{ fontFamily: "Open Sans, Roboto, Oxygen, Ubuntu, Cantarell, Lato, Helvetica Neue, sans-serif", fontSize : "1rem", fontWeight : "600" , textDecoration : "none", textTransform: "none"}}>Global Verification</Button>
             <Button component={Link} to="/about" color="rgb(255, 255, 255)" sx={{ fontFamily: "Open Sans, Roboto, Oxygen, Ubuntu, Cantarell, Lato, Helvetica Neue, sans-serif", fontSize : "1rem", fontWeight : "600" , textDecoration : "none", textTransform: "none"}}>About</Button>
             <Button component={Link} to="/contact" color="rgb(255, 255, 255)" sx={{ fontFamily: "Open Sans, Roboto, Oxygen, Ubuntu, Cantarell, Lato, Helvetica Neue, sans-serif", fontSize : "1rem", fontWeight : "600" , textDecoration : "none", textTransform: "none"}}>Contact</Button>
 
@@ -108,13 +109,14 @@ const Navbar = () => {
                 <Button component={Link} to="/dashboard" color="rgb(255, 255, 255)" sx={{ fontFamily: "Open Sans, Roboto, Oxygen, Ubuntu, Cantarell, Lato, Helvetica Neue, sans-serif", fontSize : "1rem", fontWeight : "600" , textDecoration : "none", textTransform: "none"}}>Dashboard</Button>
 
                 {/* Profile Avatar */}
-                <IconButton onClick={handleMenuOpen} sx={{ ml: 2, backgroundColor: "white", width: '40px', height: "40px" }}>
-                  <Avatar alt="logo" sx={{ width: 30, height: 30 }}>{user && user.email.charAt(0)}</Avatar>
+                <IconButton onClick={handleMenuOpen} sx={{ ml: 2, backgroundColor: "white", width: '40px', height: "40px" , ":hover" : {color : "white"}}}>
+                  <SettingsIcon alt="logo" sx={{ width: 30, height: 30 }} />
+                  
                 </IconButton>
 
                 {/* Dropdown Menu */}
                 <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose} sx={{ mt: 1 }}>
-                  <MenuItem onClick={handleLogout}>Logout</MenuItem>
+                  <MenuItem onClick={handleLogout}>{user && user.email.split("@gmail.com")[0] + " "}Logout</MenuItem>
                 </Menu>
               </>
             ) : (

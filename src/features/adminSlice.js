@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { collection, Timestamp, getDocs, increment, getDoc, doc, addDoc, serverTimestamp, deleteDoc, query, orderBy, limit, startAfter, setDoc } from "firebase/firestore";
+import { collection, getDocs, increment, getDoc, doc, addDoc, serverTimestamp, deleteDoc, query, orderBy, limit,setDoc } from "firebase/firestore";
 import { db } from "../config/firebaseConfig";
 import { toast } from "react-toastify";
 import { uploadImageToFirebase, deleteImageFromStorage } from "../utils/firebassImages";
@@ -10,135 +10,70 @@ export const updateCandidateCounts = async (department, academicYear, isAdding =
   const countDocRef = doc(db, "CandidateTotalCount", "countsSummary");
 
   try {
+    // Read the current document only if necessary
     const docSnapshot = await getDoc(countDocRef);
     let currentData = docSnapshot.exists() ? docSnapshot.data() : {};
 
     let departmentCounts = currentData.departmentCounts || {};
     let academicYearCounts = currentData.academicYearCounts || {};
 
-    // Ensure department and academicYear exist in counts
-    if (!departmentCounts[department]) departmentCounts[department] = 0;
-    if (!academicYearCounts[academicYear]) academicYearCounts[academicYear] = 0;
+    // Ensure initial values exist
+    const currentDeptCount = departmentCounts[department] || 0;
+    const currentYearCount = academicYearCounts[academicYear] || 0;
 
-    const countChange = isAdding ? 1 : -1; // Increment if adding, decrement if deleting
+    const countChange = isAdding ? 1 : -1;
 
-    // ✅ Correct way to update nested objects
+    // Prevent decrementing below 0
+    if (!isAdding) {
+      if (currentDeptCount <= 0 && currentYearCount <= 0) {
+        console.warn(`Cannot decrement below 0 for ${department} or ${academicYear}`);
+        return;
+      }
+    }
+
+    // Update Firestore counts
     await setDoc(
       countDocRef,
       {
         totalCount: increment(countChange),
-        departmentCounts: { ...departmentCounts, [department]: increment(countChange) },
-        academicYearCounts: { ...academicYearCounts, [academicYear]: increment(countChange) },
-        updatedAt: new Date(),
+        departmentCounts: { 
+          ...departmentCounts, 
+          [department]: isAdding || currentDeptCount > 0 ? increment(countChange) : 0 
+        },
+        academicYearCounts: { 
+          ...academicYearCounts, 
+          [academicYear]: isAdding || currentYearCount > 0 ? increment(countChange) : 0 
+        },
       },
       { merge: true }
     );
 
-    console.log(`Counts updated successfully (${isAdding ? "Added" : "Deleted"})`);
+    // console.log(`Counts updated successfully (${isAdding ? "Added" : "Deleted"})`);
   } catch (error) {
-    console.error("Error updating candidate count:", error);
+    // console.error("Error updating counts:", error.message);
+    throw new Error(error.message);
   }
 };
 
-// Pre-defined list of academic years (update based on your needs)
-const predefinedAcademicYears = [
-  "2017-2018",
-  "2018-2019",
-  "2019-2020",
-  "2020-2021",
-  "2021-2022",
-  "2022-2023",
-  "2023-2024",
-  "2024-2025",
-  "2025-2026"
-];
+export const fetchLatestCandidates  = createAsyncThunk(
+  "admin/fetchLatestCandidates ",
+  async (_, { rejectWithValue }) => {
+    try {
+      const candidateCollection = collection(db, "candidateData");
+      const candidatesQuery = query(candidateCollection, orderBy("createdAt", "desc"), limit(10));
 
+      const snapshot = await getDocs(candidatesQuery);
+      const candidates = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+        createdAt: new Date(doc.data().createdAt.seconds * 1000).toLocaleString(),
+      }));
 
-// export const fetchCandidateCount = createAsyncThunk(
-//   "admin/fetchCandidateCount",
-//   async (_, { rejectWithValue }) => {
-//     try {
-//       const q = collection(db, "candidateData");
-//       const querySnapshot = await getDocs(q);
+      return candidates;
 
-//       let total = 0;
-
-//       // Initialize department and academic year counts with 0
-//       let departmentCounts = {
-//         HVAC: 0,
-//         IBMS: 0,
-//         MEP: 0,
-//         POWER_PLANT: 0,
-//         WTP: 0,
-//         SAFETY: 0,
-//       };
-
-//       let academicYearCounts = predefinedAcademicYears.reduce((acc, year) => {
-//         acc[year] = 0;
-//         return acc;
-//       }, {});
-
-//       querySnapshot.forEach((doc) => {
-//         const data = doc.data();
-//         total++;
-
-//         // Normalize department names
-//         const normalizedDepartment = data.department?.toUpperCase().replace(/\s+/g, "_");
-//         if (departmentCounts[normalizedDepartment] !== undefined) {
-//           departmentCounts[normalizedDepartment]++;
-//         }
-
-//         // Academic Year count
-//         if (data.academicYear) {
-//           const year = data.academicYear;
-
-//           // Increment the count if the year exists in Firestore
-//           if (academicYearCounts[year] !== undefined) {
-//             academicYearCounts[year]++;
-//           }
-//         }
-//       });
-
-//       return { total, departmentCounts, academicYearCounts };
-//     } catch (error) {
-//       return rejectWithValue(error.message);
-//     }
-//   }
-// );
-
-
-export const fetchCandidates = createAsyncThunk(
-  "admin/fetchCandidates",
-  async ({ page, pageSize }, { getState }) => {
-    const candidateCollection = collection(db, "candidateData");
-    let candidatesQuery = query(candidateCollection, orderBy("createdAt", "desc"), limit(pageSize));
-
-    const { lastVisibleDoc } = getState().admin;
-
-    if (page > 1 && lastVisibleDoc) {
-      // Convert stored seconds back to Firestore Timestamp
-      const lastTimestamp = new Timestamp(lastVisibleDoc.seconds, lastVisibleDoc.nanoseconds);
-      candidatesQuery = query(
-        candidateCollection,
-        orderBy("createdAt", "desc"),
-        startAfter(lastTimestamp),
-        limit(pageSize)
-      );
+    } catch (error) {
+      return rejectWithValue(error.message);
     }
-
-    const snapshot = await getDocs(candidatesQuery);
-    const candidates = snapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data(),
-      createdAt: new Date(doc.data().createdAt.seconds * 1000).toLocaleString(),
-    }));
-
-    return {
-      candidates,
-      lastVisibleDoc: snapshot.docs.length > 0
-        ? snapshot.docs[snapshot.docs.length - 1].data().createdAt.toJSON()  // Convert Firestore Timestamp to JSON
-        : null,
-    };
   }
 );
 
@@ -169,7 +104,7 @@ export const deleteCandidate = createAsyncThunk(
       // Delete candidate document from Firestore
       await deleteDoc(candidateRef);
 
-      // ✅ Update candidate counts after deletion
+      // Update candidate counts after deletion
       await updateCandidateCounts(department, academicYear, false);
 
       // Remove from search results in the store
@@ -177,7 +112,8 @@ export const deleteCandidate = createAsyncThunk(
       const updatedResults = currentSearchResults.filter((c) => c.id !== candidateId);
       dispatch(updateSearchResults(updatedResults));
 
-      dispatch(fetchCandidates({ page: 1, pageSize: 5 })); // Refresh list
+      dispatch(fetchCandidateCount()); // Refresh list
+      dispatch(fetchLatestCandidates()); // Refresh list
 
       return candidateId; // Return deleted ID
     } catch (error) {
@@ -215,7 +151,7 @@ export const addCandidate = createAsyncThunk("admin/addCandidate", async ({ regi
       createdAt: serverTimestamp(),
     });
 
-    // ✅ Update candidate counts after adding
+    // Update candidate counts after adding
     await updateCandidateCounts(department, academicYear, true);
 
     toast.success("Candidate added successfully");
@@ -248,7 +184,7 @@ export const searchCandidates = createAsyncThunk(
       querySnapshot.forEach((doc) => {
         let candidate = doc.data();
 
-        // ✅ Apply filtering manually in JS
+        // Apply filtering manually in JS
         if (
           (!searchQuery.trim() ||
             candidate.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -266,7 +202,7 @@ export const searchCandidates = createAsyncThunk(
         }
       });
 
-      // ✅ Sort by createdAt (latest candidates first)
+      // Sort by createdAt (latest candidates first)
       candidates.sort((a, b) => (b.createdAt > a.createdAt ? 1 : -1));
 
       if (candidates.length === 0) {
@@ -283,14 +219,11 @@ export const searchCandidates = createAsyncThunk(
   }
 );
 
-
-
-
 export const fetchCandidateCount = createAsyncThunk(
   "admin/fetchCandidateCount",
   async (_, { rejectWithValue }) => {
     try {
-      // ✅ Reference to the count document 
+      // Reference to the count document 
       const countDocRef = doc(db, "CandidateTotalCount", "countsSummary");
       const countSnap = await getDoc(countDocRef);
 
@@ -301,11 +234,8 @@ export const fetchCandidateCount = createAsyncThunk(
 
       const countData = countSnap.data();
 
-      // ✅ Convert Firestore Timestamp to ISO String for Redux
-      return {
-        ...countData,
-        updatedAt: countData.updatedAt?.toDate().toISOString() || null,
-      };
+      // Convert Firestore Timestamp to ISO String for Redux
+      return countData;
     } catch (error) {
       toast.error("Error fetching candidate counts.");
       return rejectWithValue(error.message);
@@ -319,11 +249,12 @@ const adminSlice = createSlice({
     totalCandidates: 0,
     departmentCounts: {},
     academicYearCounts: {},
+    totalCandidatesLoading : false,
+    totalCandidatesError : false,
 
     candidates: [],
-    lastVisibleDoc: null,
-    loading: false,
-    error: null,
+    candidatesLoading: false,
+    candidatesError: null,
 
     addCandidateLoading: false,
     addCandidateError: false,
@@ -343,22 +274,29 @@ const adminSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
+      .addCase(fetchCandidateCount.pending, (state, action) => {
+        state.totalCandidatesLoading = true;
+      })
       .addCase(fetchCandidateCount.fulfilled, (state, action) => {
+        state.totalCandidatesLoading = false;
         state.totalCandidates = action.payload.totalCount;
         state.departmentCounts = action.payload.departmentCounts;
         state.academicYearCounts = action.payload.academicYearCounts;
       })
-      .addCase(fetchCandidates.pending, (state) => {
-        state.loading = true;
+      .addCase(fetchCandidateCount.rejected, (state, action) => {
+        state.totalCandidatesLoading = false;
+        state.totalCandidatesError = action.error.message;
       })
-      .addCase(fetchCandidates.fulfilled, (state, action) => {
-        state.loading = false;
-        state.candidates = action.payload.candidates;
-        state.lastVisibleDoc = action.payload.lastVisibleDoc; // Now safely stored as JSON
+      .addCase(fetchLatestCandidates.pending, (state) => {
+        state.candidatesLoading = true;
       })
-      .addCase(fetchCandidates.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.error.message;
+      .addCase(fetchLatestCandidates.fulfilled, (state, action) => {
+        state.candidatesLoading = false;
+        state.candidates = action.payload;
+      })
+      .addCase(fetchLatestCandidates.rejected, (state, action) => {
+        state.candidatesLoading = false;
+        state.candidatesError = action.error.message;
       })
       .addCase(deleteCandidate.pending, (state) => {
         state.deleteCandidateLoading = true;

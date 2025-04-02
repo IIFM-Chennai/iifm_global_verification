@@ -6,7 +6,7 @@ import ReCAPTCHA from "react-google-recaptcha";
 import Spiner from "../components/Spiner";
 import { toast } from "react-toastify";
 
-const siteKey = import.meta.env.VITE_RECAPTCHA_SITE_KEY
+const siteKey = import.meta.env.VITE_RECAPTCHA_SITE_KEY;
 
 const StudentSearch = () => {
   const [registerNo, setRegisterNo] = useState("");
@@ -14,21 +14,20 @@ const StudentSearch = () => {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const [isVerified, setIsVerified] = useState(false);
+  const [searchComplete, setSearchComplete] = useState(false);
 
   const recaptchaRef = useRef(null);
 
-  // Handle Google reCAPTCHA verification
   const handleCaptchaVerify = (token) => {
     if (token) {
       setIsVerified(true);
-      toast.success("reCAPTCHA verified successfully! ✅");
+      toast.success("reCAPTCHA verified successfully!");
     }
   };
 
-  // Reset reCAPTCHA after every search
   const resetCaptcha = () => {
     if (recaptchaRef.current) {
-      recaptchaRef.current.reset(); // Resets reCAPTCHA
+      recaptchaRef.current.reset();
     }
     setIsVerified(false);
   };
@@ -43,9 +42,7 @@ const StudentSearch = () => {
       return;
     }
 
-    // Disable the search button immediately after searching
     setIsVerified(false);
-
     setError(null);
     setStudentData(null);
     setLoading(true);
@@ -59,104 +56,143 @@ const StudentSearch = () => {
           setStudentData(doc.data());
         });
         toast.success("Candidate found successfully!");
+        setSearchComplete(true); // Hide form after successful search
       } else {
         setError("Candidate not found!");
-        toast.error("Candidate not found ❌");
+        toast.error("Candidate not found");
       }
     } catch (err) {
       setError("Error fetching data");
-      toast.error("Error fetching data ⚠️");
+      toast.error("Error fetching data");
     } finally {
       setLoading(false);
-      resetCaptcha(); // Reset reCAPTCHA after search
+      resetCaptcha();
       setRegisterNo("");
     }
   };
 
+  const handleRescan = () => {
+    setSearchComplete(false);
+    setStudentData(null);
+    setRegisterNo("");
+    resetCaptcha();
+  };
+
   return (
     <Container maxWidth="md" sx={{ mt: 5 }}>
-      <Typography variant="h4" mb={3} gutterBottom align="center" color="#2c3e50" sx={{ fontFamily: "Open Sans, Roboto, Oxygen, Ubuntu, Cantarell, Lato, Helvetica Neue, sans-serif", fontSize : "32px", fontWeight : "700" }}>
+      <Typography variant="h4" mb={3} align="center" color="#2c3e50" sx={{ fontWeight: "700" }}>
         Global Verification
       </Typography>
 
-      {/* reCAPTCHA Verification */}
-      <Paper elevation={3} sx={{
-        p: 2,
-        mb: 4,
-        backgroundColor: "#f8f9fa",
-        display: "inline-block", // Fit content width
-        mx: "auto", // Center horizontally
-        textAlign: "center",
-      }}>
-        <ReCAPTCHA
-          sitekey={siteKey}
-          onChange={handleCaptchaVerify}
-          ref={recaptchaRef}
-        />
-      </Paper>
+      {!searchComplete ? (
+        <Paper elevation={3} sx={{ p: 3, backgroundColor: "#fff" }}>
+          <Typography variant="h6" sx={{ mb: 2 }}>Search Candidate</Typography>
 
-      {/* Search Form */}
-      <Paper elevation={3} sx={{ p: 3, backgroundColor: "#fff" }}>
-        <Typography variant="h6" sx={{ mb: 2 }}>Search Candidate</Typography>
-        <TextField
-          label="Enter Register No"
-          variant="outlined"
-          fullWidth
-          value={registerNo}
-          onChange={(e) => setRegisterNo(e.target.value)}
-          sx={{ mb: 2 }}
-          error={Boolean(error)}
-        />
-        <Button
-          variant="contained"
-          sx={{ backgroundColor: "#4460aa", width: "100%" }}
-          onClick={handleSearch}
-          disabled={loading || !isVerified}
-        >
-          {loading ? "Searching..." : "Search"}
-        </Button>
-      </Paper>
+          {/* Input Field */}
+          <TextField
+            label="Enter Register No"
+            variant="outlined"
+            fullWidth
+            value={registerNo}
+            onChange={(e) => setRegisterNo(e.target.value)}
+            sx={{ mb: 2 }}
+            error={Boolean(error)}
+          />
 
-      {loading && <Spiner />}
-      {error && <Typography color="error" sx={{ mt: 2, textAlign: "center" }}>{error}</Typography>}
+          {/* reCAPTCHA */}
+          <Paper elevation={2} sx={{ p: 2, backgroundColor: "#f8f9fa", mb: 2 }}>
 
-      {studentData && !loading && (
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "left",
+                transform: { xs: "scale(0.85)", sm: "scale(1)" },
+                transformOrigin: "left"
+              }}
+            >
+
+              <ReCAPTCHA
+                sitekey={siteKey}
+                onChange={handleCaptchaVerify}
+                ref={recaptchaRef}
+                aria-label="reCAPTCHA Verification"
+              />
+            </Box>
+          </Paper>
+
+          {/* Search Button */}
+          <Button
+            variant="contained"
+            sx={{
+              backgroundColor: "#4460aa",
+              width: "100%",
+              opacity: loading || !isVerified ? 0.5 : 1, // Visual cue
+              cursor: loading || !isVerified ? "not-allowed" : "pointer"
+            }}
+            onClick={handleSearch}
+            disabled={loading || !isVerified}
+          >
+            {loading ? "Searching..." : "Search"}
+          </Button>
+        </Paper>
+      ) : (
         <Box sx={{ mt: 4 }}>
           {/* Marksheet */}
-          <Card sx={{ mb: 3, position: "relative" }}>
+          <Card sx={{ mb: 3 }}>
             <CardMedia
-              loading="lazy"
               component="img"
-              image={studentData.markSheet}
+              image={studentData?.markSheet}
               alt="Marksheet"
               sx={{ pointerEvents: "none", userSelect: "none" }}
             />
           </Card>
 
           {/* ID Cards */}
-          <Box sx={{ display: "flex", justifyContent: "space-between", gap: 2 }}>
-            <Card sx={{ flex: 1, position: "relative" }}>
+          <Box sx={{
+            display: "flex",
+            flexDirection: { xs: "column", sm: "row" }, // Stack on mobile
+            justifyContent: "space-between",
+            gap: 2
+          }}>
+            <Card sx={{ flex: 1 }}>
               <CardMedia
-                loading="lazy"
                 component="img"
-                image={studentData.idCardFront}
+                image={studentData?.idCardFront}
                 alt="ID Card Front"
                 sx={{ pointerEvents: "none", userSelect: "none" }}
               />
             </Card>
 
-            <Card sx={{ flex: 1, position: "relative" }}>
+            <Card sx={{ flex: 1 }}>
               <CardMedia
-                loading="lazy"
                 component="img"
-                image={studentData.idCardBack}
+                image={studentData?.idCardBack}
                 alt="ID Card Back"
                 sx={{ pointerEvents: "none", userSelect: "none" }}
               />
             </Card>
           </Box>
+
+          {/* Rescan Button */}
+          <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 3 }}>
+
+            <Button
+              variant="contained"
+              sx={{
+                backgroundColor: "#4460aa",
+                "&:hover": { backgroundColor: "#36508a" }, // Darker on hover
+                "&:active": { backgroundColor: "#2c4378" } // No blue tint on click
+              }}
+              onClick={handleRescan}
+            >
+              Research
+            </Button>
+          </Box>
         </Box>
       )}
+
+      {loading && <Spiner />}
+      {error && <Typography color="error" sx={{ mt: 2, textAlign: "center" }}>{error}</Typography>}
     </Container>
   );
 };

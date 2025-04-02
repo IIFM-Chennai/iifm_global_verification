@@ -3,7 +3,7 @@ import { IconButton, Dialog, DialogActions, DialogContent, DialogContentText, Di
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { useDispatch, useSelector } from "react-redux";
-import { deleteCandidate, fetchCandidateCount } from "../features/adminSlice";
+import { deleteCandidate} from "../features/adminSlice";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";  
 
@@ -27,7 +27,6 @@ const CandidateActions = ({ candidateId }) => {
         setOpen(false);
       });
 
-      dispatch(fetchCandidateCount())
   };
 
   return (
