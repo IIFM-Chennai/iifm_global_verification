@@ -7,6 +7,7 @@ import { Autoplay } from "swiper/modules";
 const About = () => {
 
   const images = [
+    "/assets/Certificate_Candidate_6.jpg",
     "/assets/Certificate_Candidate_5.jpg",
     "/assets/Certificate_Candidate_4.jpg",
     "/assets/Certificate_Candidate_3.jpg",
@@ -19,11 +20,10 @@ const About = () => {
       {/* Header Section */}
       <Box sx={{ textAlign: "center", mb: 4 }}>
         <Typography variant="h4" align="center" color="#2c3e50" sx={{ fontFamily: "Open Sans, Roboto, Oxygen, Ubuntu, Cantarell, Lato, Helvetica Neue, sans-serif", fontSize : "32px", fontWeight : "700" }}>
-          About Integrated Institute of Facility Management
+          Integrated Institute of Facility Management
         </Typography>
         <Typography variant="body1" color="textSecondary" mt={2}>
-          Empowering students with industry-relevant skills in Facility
-          Management.
+          The objective of IIFM is to fulfill the global demand for skilled manpower by providing essential on-the-job training through its own programs, there by creating employment opportunities. 
         </Typography>
       </Box>
 
@@ -53,7 +53,7 @@ const About = () => {
           mt: 6,
         }}
       >
-        <Box sx={{ flex: 1 }}>
+        {/* <Box sx={{ flex: 1 }}>
           <Typography variant="h5" color="#2c3e50" sx={{ fontFamily: "Open Sans, Roboto, Oxygen, Ubuntu, Cantarell, Lato, Helvetica Neue, sans-serif", fontSize : "25px", fontWeight : "700" }}>
             Why Choose IIFM?
           </Typography>
@@ -63,7 +63,7 @@ const About = () => {
           <Button variant="contained" href="tel:+919962291220" sx={{ mt: 3 , backgroundColor : "#4460aa"}}>
           Call Now
           </Button>
-        </Box>
+        </Box> */}
 
         <Box sx={{ flex: 1 }}>
           <img

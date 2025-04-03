@@ -92,6 +92,7 @@ const StudentSearch = () => {
           <TextField
             label="Enter Register No"
             variant="outlined"
+            name="search"
             fullWidth
             value={registerNo}
             onChange={(e) => setRegisterNo(e.target.value)}
@@ -100,14 +101,13 @@ const StudentSearch = () => {
           />
 
           {/* reCAPTCHA */}
-          <Paper elevation={2} sx={{ p: 2, backgroundColor: "#f8f9fa", mb: 2 }}>
-
             <Box
               sx={{
                 display: "flex",
                 justifyContent: "left",
                 transform: { xs: "scale(0.85)", sm: "scale(1)" },
-                transformOrigin: "left"
+                transformOrigin: "left",
+                mb : 2,
               }}
             >
 
@@ -118,7 +118,6 @@ const StudentSearch = () => {
                 aria-label="reCAPTCHA Verification"
               />
             </Box>
-          </Paper>
 
           {/* Search Button */}
           <Button
