@@ -101,23 +101,23 @@ const StudentSearch = () => {
           />
 
           {/* reCAPTCHA */}
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: "left",
-                transform: { xs: "scale(0.85)", sm: "scale(1)" },
-                transformOrigin: "left",
-                mb : 2,
-              }}
-            >
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "left",
+              transform: { xs: "scale(0.85)", sm: "scale(1)" },
+              transformOrigin: "left",
+              mb: 2,
+            }}
+          >
 
-              <ReCAPTCHA
-                sitekey={siteKey}
-                onChange={handleCaptchaVerify}
-                ref={recaptchaRef}
-                aria-label="reCAPTCHA Verification"
-              />
-            </Box>
+            <ReCAPTCHA
+              sitekey={siteKey}
+              onChange={handleCaptchaVerify}
+              ref={recaptchaRef}
+              aria-label="reCAPTCHA Verification"
+            />
+          </Box>
 
           {/* Search Button */}
           <Button
@@ -135,7 +135,26 @@ const StudentSearch = () => {
           </Button>
         </Paper>
       ) : (
+
         <Box sx={{ mt: 4 }}>
+
+          {/* Rescan Button */}
+          <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 3 }}>
+
+            <Button
+              variant="contained"
+              sx={{
+                backgroundColor: "#4460aa",
+                "&:hover": { backgroundColor: "#36508a" }, // Darker on hover
+                "&:active": { backgroundColor: "#2c4378" } // No blue tint on click
+              }}
+              onClick={handleRescan}
+            >
+              Research
+            </Button>
+          </Box>
+
+          
           {/* Marksheet */}
           <Card sx={{ mb: 3 }}>
             <CardMedia
@@ -172,21 +191,7 @@ const StudentSearch = () => {
             </Card>
           </Box>
 
-          {/* Rescan Button */}
-          <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 3 }}>
 
-            <Button
-              variant="contained"
-              sx={{
-                backgroundColor: "#4460aa",
-                "&:hover": { backgroundColor: "#36508a" }, // Darker on hover
-                "&:active": { backgroundColor: "#2c4378" } // No blue tint on click
-              }}
-              onClick={handleRescan}
-            >
-              Research
-            </Button>
-          </Box>
         </Box>
       )}
 

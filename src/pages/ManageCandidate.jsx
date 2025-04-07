@@ -63,7 +63,7 @@ const ManageCandidate = () => {
               <Typography component="h3" variant="h5" sx={{ fontWeight: 'bold' }}>{dept.replace(/_/g, " ")}</Typography>
               <Typography variant="h6" color="secondary">{count}</Typography>
             </CardContent>
-            <CardMedia component="img" sx={{ width: { xs: '100%', sm: 151 }, height: { xs: 200, sm: 'auto' }, objectFit: 'cover' }} image={departmentImages[dept.toUpperCase()] || '/assets/default.jpg'} alt={dept} />
+            <CardMedia component="img" sx={{ width: { xs: '100%', sm: 151 }, height: { xs: 200, sm: 'auto' }, objectFit: 'cover' }} image={departmentImages[dept.toUpperCase().replace(" ", "_")] || '/assets/default.jpg'} alt={dept} />
           </Card>
         ))}
       </Box>
