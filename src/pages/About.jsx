@@ -1,4 +1,4 @@
-import { Box, Typography, Button, Container } from "@mui/material";
+import { Box, Typography, Container } from "@mui/material";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import "swiper/css/autoplay";
@@ -7,6 +7,8 @@ import { Autoplay } from "swiper/modules";
 const About = () => {
 
   const images = [
+    "/assets/Certificate_Candidate_8.jpg",
+    "/assets/Certificate_Candidate_7.jpg",
     "/assets/Certificate_Candidate_6.jpg",
     "/assets/Certificate_Candidate_5.jpg",
     "/assets/Certificate_Candidate_4.jpg",
