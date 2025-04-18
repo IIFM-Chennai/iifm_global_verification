@@ -17,6 +17,7 @@ const departmentImages = {
   POWER_PLANT: '/assets/power-plant.png',
   WTP: '/assets/wtp.png',
   SAFETY: '/assets/safety.png',
+  LSCM: '/assets/lscm.jpg',
 };
 
 const ManageCandidate = () => {
