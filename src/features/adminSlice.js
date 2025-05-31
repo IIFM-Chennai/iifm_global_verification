@@ -1,9 +1,9 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { collection, getDocs, increment, getDoc, doc, addDoc, serverTimestamp, deleteDoc, query, orderBy, limit,setDoc } from "firebase/firestore";
+import { collection, getDocs, increment, getDoc, doc, addDoc, serverTimestamp, deleteDoc, query, orderBy, limit, setDoc } from "firebase/firestore";
 import { db } from "../config/firebaseConfig";
 import { toast } from "react-toastify";
 import { uploadImageToFirebase, deleteImageFromStorage } from "../utils/firebassImages";
-
+import sendCandidateNotification from "../utils/candidateActionNotify";
 
 
 export const updateCandidateCounts = async (department, academicYear, isAdding = true) => {
@@ -36,13 +36,13 @@ export const updateCandidateCounts = async (department, academicYear, isAdding =
       countDocRef,
       {
         totalCount: increment(countChange),
-        departmentCounts: { 
-          ...departmentCounts, 
-          [department]: isAdding || currentDeptCount > 0 ? increment(countChange) : 0 
+        departmentCounts: {
+          ...departmentCounts,
+          [department]: isAdding || currentDeptCount > 0 ? increment(countChange) : 0
         },
-        academicYearCounts: { 
-          ...academicYearCounts, 
-          [academicYear]: isAdding || currentYearCount > 0 ? increment(countChange) : 0 
+        academicYearCounts: {
+          ...academicYearCounts,
+          [academicYear]: isAdding || currentYearCount > 0 ? increment(countChange) : 0
         },
       },
       { merge: true }
@@ -55,7 +55,7 @@ export const updateCandidateCounts = async (department, academicYear, isAdding =
   }
 };
 
-export const fetchLatestCandidates  = createAsyncThunk(
+export const fetchLatestCandidates = createAsyncThunk(
   "admin/fetchLatestCandidates ",
   async (_, { rejectWithValue }) => {
     try {
@@ -104,6 +104,21 @@ export const deleteCandidate = createAsyncThunk(
       // Delete candidate document from Firestore
       await deleteDoc(candidateRef);
 
+      // Send email after deletion
+      const success = await sendCandidateNotification(
+        {
+          name: candidateData.name,
+          reg_no: candidateData.registerNo,
+          department: candidateData.department,
+          academic_year: candidateData.academicYear,
+        },
+        "Deleted"
+      );
+
+      if (!success) {
+        console.warn("Candidate email notification failed to send.");
+      }
+
       // Update candidate counts after deletion
       await updateCandidateCounts(department, academicYear, false);
 
@@ -150,6 +165,20 @@ export const addCandidate = createAsyncThunk("admin/addCandidate", async ({ regi
       idCardBack: idCardBackUrl,
       createdAt: serverTimestamp(),
     });
+
+    // Send email notification
+    const success = await sendCandidateNotification(
+      {
+        name,
+        reg_no: registerNo,
+        department,
+        academic_year: academicYear,
+      },
+      "Added"
+    );
+    if (!success) {
+      console.warn("Candidate email notification failed to send.");
+    }
 
     // Update candidate counts after adding
     await updateCandidateCounts(department, academicYear, true);
@@ -249,8 +278,8 @@ const adminSlice = createSlice({
     totalCandidates: 0,
     departmentCounts: {},
     academicYearCounts: {},
-    totalCandidatesLoading : false,
-    totalCandidatesError : false,
+    totalCandidatesLoading: false,
+    totalCandidatesError: false,
 
     candidates: [],
     candidatesLoading: false,

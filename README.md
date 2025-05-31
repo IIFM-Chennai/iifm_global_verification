@@ -60,6 +60,7 @@ VITE_SECRET_KEY=your_secret_key
 VITE_ADMIN_EMAILS=admin@example.com
 VITE_EMAILJS_SERVICE_ID=your_service_id
 VITE_EMAILJS_TEMPLATE_ID=your_template_id
+VITE_EMAILJS_TEMPLATE_ID=your_template_id2
 VITE_EMAILJS_PUBLIC_KEY=your_public_key
 ```
 > ⚠️ **Do not commit your `.env` file to GitHub!**
@@ -96,6 +97,7 @@ Each candidate entry follows this structure:
   "registerNo": "555900",
   "name": "Vijay",
   "department": "POWER_PLANT",
+  "academicYear": "2024-2025",
   "markSheet": "https://storage.firebase.com/...",
   "idCardFront": "https://storage.firebase.com/...",
   "idCardBack": "https://storage.firebase.com/...",
