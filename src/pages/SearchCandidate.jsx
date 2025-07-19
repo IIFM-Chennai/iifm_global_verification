@@ -33,7 +33,7 @@ const SearchCandidates = () => {
 
   // Sample department and academic year options (replace with dynamic options if needed)
   const departmentOptions = ["", "HVAC", "IBMS", "MEP", "POWER PLANT", "WTP", "SAFETY", "LSCM"];
-  const academicYearOptions = ["", "2017-2018", "2018-2019", "2019-2020", "2020-2021", "2021-2022", "2022-2023", "2023-2024", "2024-2025", "2025-2026"];
+  const academicYearOptions = ["","2014-2015","2015-2016","2016-2017","2017-2018", "2018-2019", "2019-2020", "2020-2021", "2021-2022", "2022-2023", "2023-2024", "2024-2025", "2025-2026"];
 
   // Handle Search
   const handleSearch = () => {

@@ -80,9 +80,24 @@ const StudentSearch = () => {
 
   return (
     <Container maxWidth="md" sx={{ mt: 5 }}>
-      <Typography variant="h4" mb={3} align="center" color="#2c3e50" sx={{ fontWeight: "700" }}>
-        Global Verification
+      <Typography
+        variant="h1"
+        mb={3}
+        align="center"
+        color="#2c3e50"
+        sx={{
+          fontWeight: 700,
+          fontSize: {
+            xs: "2rem",   // mobile
+            sm: "3rem",   // small devices
+            md: "4rem",   // tablets and up
+            lg: "5rem",   // large screens
+          },
+        }}
+      >
+        IIFM Global Verification
       </Typography>
+
 
       {!searchComplete ? (
         <Paper elevation={3} sx={{ p: 3, backgroundColor: "#fff" }}>
@@ -154,7 +169,7 @@ const StudentSearch = () => {
             </Button>
           </Box>
 
-          
+
           {/* Marksheet */}
           <Card sx={{ mb: 3 }}>
             <CardMedia
