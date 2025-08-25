@@ -18,6 +18,7 @@ const departmentImages = {
   WTP: '/assets/wtp.png',
   SAFETY: '/assets/safety.png',
   LSCM: '/assets/lscm.jpg',
+  WELDER: '/assets/welder.png',
 };
 
 const ManageCandidate = () => {

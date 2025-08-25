@@ -123,9 +123,9 @@ export const deleteCandidate = createAsyncThunk(
       await updateCandidateCounts(department, academicYear, false);
 
       // Remove from search results in the store
-      const currentSearchResults = getState().admin.searchCandidatesData;
-      const updatedResults = currentSearchResults.filter((c) => c.id !== candidateId);
-      dispatch(updateSearchResults(updatedResults));
+      // const currentSearchResults = getState().admin.searchCandidatesData;
+      // const updatedResults = currentSearchResults.filter((c) => c.id !== candidateId);
+      // dispatch(updateSearchResults(updatedResults));
 
       dispatch(fetchCandidateCount()); // Refresh list
       dispatch(fetchLatestCandidates()); // Refresh list
@@ -191,62 +191,62 @@ export const addCandidate = createAsyncThunk("admin/addCandidate", async ({ regi
   }
 });
 
-export const searchCandidates = createAsyncThunk(
-  "search/searchCandidates",
-  async ({ searchQuery, department, academicYear }, { rejectWithValue }) => {
-    try {
-      if (!searchQuery.trim() && !department && !academicYear) {
-        toast.error("Please select at least one search or filter option!");
-        return rejectWithValue("No filters or search query provided");
-      }
+// export const searchCandidates = createAsyncThunk(
+//   "search/searchCandidates",
+//   async ({ searchQuery, department, academicYear }, { rejectWithValue }) => {
+//     try {
+//       if (!searchQuery.trim() && !department && !academicYear) {
+//         toast.error("Please select at least one search or filter option!");
+//         return rejectWithValue("No filters or search query provided");
+//       }
 
-      let candidatesRef = collection(db, "candidateData");
+//       let candidatesRef = collection(db, "candidateData");
 
-      // Apply limit() to Firestore query (max 50 candidates)
-      const candidatesQuery = query(candidatesRef, limit(50));
+//       // Apply limit() to Firestore query (max 50 candidates)
+//       const candidatesQuery = query(candidatesRef, limit(50));
 
-      // Fetch only 50 candidates from Firestore
-      const querySnapshot = await getDocs(candidatesQuery);
+//       // Fetch only 50 candidates from Firestore
+//       const querySnapshot = await getDocs(candidatesQuery);
 
-      let candidates = [];
+//       let candidates = [];
 
-      querySnapshot.forEach((doc) => {
-        let candidate = doc.data();
+//       querySnapshot.forEach((doc) => {
+//         let candidate = doc.data();
 
-        // Apply filtering manually in JS
-        if (
-          (!searchQuery.trim() ||
-            candidate.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            candidate.registerNo.includes(searchQuery)) &&
-          (!department || candidate.department === department) &&
-          (!academicYear || candidate.academicYear === academicYear)
-        ) {
-          candidates.push({
-            id: doc.id,
-            ...candidate,
-            createdAt: candidate.createdAt
-              ? new Date(candidate.createdAt.seconds * 1000).toLocaleString()
-              : null,
-          });
-        }
-      });
+//         // Apply filtering manually in JS
+//         if (
+//           (!searchQuery.trim() ||
+//             candidate.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+//             candidate.registerNo.includes(searchQuery)) &&
+//           (!department || candidate.department === department) &&
+//           (!academicYear || candidate.academicYear === academicYear)
+//         ) {
+//           candidates.push({
+//             id: doc.id,
+//             ...candidate,
+//             createdAt: candidate.createdAt
+//               ? new Date(candidate.createdAt.seconds * 1000).toLocaleString()
+//               : null,
+//           });
+//         }
+//       });
 
-      // Sort by createdAt (latest candidates first)
-      candidates.sort((a, b) => (b.createdAt > a.createdAt ? 1 : -1));
+//       // Sort by createdAt (latest candidates first)
+//       candidates.sort((a, b) => (b.createdAt > a.createdAt ? 1 : -1));
 
-      if (candidates.length === 0) {
-        toast.error("No candidates found!");
-      } else {
-        toast.success(`Found ${candidates.length} candidate(s)!`);
-      }
+//       if (candidates.length === 0) {
+//         toast.error("No candidates found!");
+//       } else {
+//         toast.success(`Found ${candidates.length} candidate(s)!`);
+//       }
 
-      return candidates;
-    } catch (error) {
-      toast.error("Error searching candidates");
-      return rejectWithValue(error.message);
-    }
-  }
-);
+//       return candidates;
+//     } catch (error) {
+//       toast.error("Error searching candidates");
+//       return rejectWithValue(error.message);
+//     }
+//   }
+// );
 
 export const fetchCandidateCount = createAsyncThunk(
   "admin/fetchCandidateCount",
@@ -291,15 +291,15 @@ const adminSlice = createSlice({
     deleteCandidateLoading: false,
     deleteCandidateError: false,
 
-    searchCandidatesData: [],
-    searchLoading: false,
-    searchError: null,
+    // searchCandidatesData: [],
+    // searchLoading: false,
+    // searchError: null,
 
   },
   reducers: {
-    updateSearchResults: (state, action) => {
-      state.searchCandidatesData = action.payload; // Update search results after deletion
-    },
+    // updateSearchResults: (state, action) => {
+    //   state.searchCandidatesData = action.payload; // Update search results after deletion
+    // },
   },
   extraReducers: (builder) => {
     builder
@@ -348,22 +348,22 @@ const adminSlice = createSlice({
         state.addCandidateLoading = false;
         state.addCandidateError = action.payload;
       })
-      .addCase(searchCandidates.pending, (state) => {
-        state.searchLoading = true;
-        state.searchError = null;
-      })
-      .addCase(searchCandidates.fulfilled, (state, action) => {
-        state.searchLoading = false;
-        state.searchCandidatesData = action.payload;
-      })
-      .addCase(searchCandidates.rejected, (state, action) => {
-        state.searchLoading = false;
-        state.searchError = action.payload;
-      });
+      // .addCase(searchCandidates.pending, (state) => {
+      //   state.searchLoading = true;
+      //   state.searchError = null;
+      // })
+      // .addCase(searchCandidates.fulfilled, (state, action) => {
+      //   state.searchLoading = false;
+      //   state.searchCandidatesData = action.payload;
+      // })
+      // .addCase(searchCandidates.rejected, (state, action) => {
+      //   state.searchLoading = false;
+      //   state.searchError = action.payload;
+      // });
   },
 });
 
-export const { updateSearchResults } = adminSlice.actions;
+// export const { updateSearchResults } = adminSlice.actions;
 
 export default adminSlice.reducer;
 
