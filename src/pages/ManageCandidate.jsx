@@ -19,6 +19,7 @@ const departmentImages = {
   SAFETY: '/assets/safety.png',
   LSCM: '/assets/lscm.jpg',
   WELDER: '/assets/welder.png',
+  CFM: '/assets/cfm.webp',
 };
 
 const ManageCandidate = () => {

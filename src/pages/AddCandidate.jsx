@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { addCandidate } from "../features/adminSlice";
 import {
@@ -13,7 +13,7 @@ import {
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 
-const departments = ["HVAC", "IBMS", "MEP", "POWER PLANT", "WTP", "SAFETY", "LSCM","WELDER"];
+const departments = ["HVAC", "IBMS", "MEP", "POWER PLANT", "WTP", "SAFETY", "LSCM","WELDER","CFM"];
 const academicYears = ["2014-2015","2015-2016","2016-2017","2017-2018", "2018-2019", "2019-2020", "2020-2021", "2021-2022", "2022-2023", "2023-2024", "2024-2025", "2025-2026"];
 
 
