@@ -125,7 +125,7 @@ const StudentSearch = () => {
                 mb: 2,
               }}
             >
-             <CaptchaCanvas text={captcha} />
+              <CaptchaCanvas text={captcha} />
 
               <Button
                 variant="outlined"
@@ -178,7 +178,7 @@ const StudentSearch = () => {
             </Button>
           </Box>
 
-          <Card sx={{ mb: 3 }}>
+          {/* <Card sx={{ mb: 3 }}>
             <CardMedia
               component="img"
               image={studentData?.markSheet}
@@ -210,7 +210,67 @@ const StudentSearch = () => {
                 sx={{ pointerEvents: "none", userSelect: "none" }}
               />
             </Card>
-          </Box>
+          </Box> */}
+
+          {/* Marksheet Section */}
+          {studentData?.markSheet && (
+            <Card sx={{ mb: 3 }}>
+              <CardMedia
+                component="img"
+                image={studentData.markSheet}
+                alt="Marksheet"
+                sx={{ pointerEvents: "none", userSelect: "none" }}
+              />
+            </Card>
+          )}
+
+          {/* Certificate Section */}
+          {studentData?.certificate && (
+            <Card sx={{ mb: 3 }}>
+              <CardMedia
+                component="img"
+                image={studentData.certificate}
+                alt="Certificate"
+                sx={{ pointerEvents: "none", userSelect: "none" }}
+              />
+            </Card>
+          )}
+
+          {/* ID Card Section */}
+          {(studentData?.idCardFront || studentData?.idCardBack) && (
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: { xs: "column", sm: "row" },
+                justifyContent: "space-between",
+                gap: 2
+              }}
+            >
+              {studentData?.idCardFront && (
+                <Card sx={{ flex: 1 }}>
+                  <CardMedia
+                    component="img"
+                    image={studentData.idCardFront}
+                    alt="ID Card Front"
+                    sx={{ pointerEvents: "none", userSelect: "none" }}
+                  />
+                </Card>
+              )}
+
+              {studentData?.idCardBack && (
+                <Card sx={{ flex: 1 }}>
+                  <CardMedia
+                    component="img"
+                    image={studentData.idCardBack}
+                    alt="ID Card Back"
+                    sx={{ pointerEvents: "none", userSelect: "none" }}
+                  />
+                </Card>
+              )}
+            </Box>
+          )}
+
+
         </Box>
       )}
 

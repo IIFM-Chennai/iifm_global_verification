@@ -92,13 +92,14 @@ export const deleteCandidate = createAsyncThunk(
       const candidateData = candidateSnap.data();
 
       // Extract image URLs
-      const { markSheet, idCardFront, idCardBack, department, academicYear } = candidateData;
+      const { markSheet, certificate, idCardFront, idCardBack, department, academicYear } = candidateData;
 
-      // Delete all candidate images
+      // Delete all candidate images (conditionally if they exist)
       await Promise.all([
-        deleteImageFromStorage(markSheet),
-        deleteImageFromStorage(idCardFront),
-        deleteImageFromStorage(idCardBack),
+        markSheet ? deleteImageFromStorage(markSheet) : Promise.resolve(),
+        certificate ? deleteImageFromStorage(certificate) : Promise.resolve(),
+        idCardFront ? deleteImageFromStorage(idCardFront) : Promise.resolve(),
+        idCardBack ? deleteImageFromStorage(idCardBack) : Promise.resolve(),
       ]);
 
       // Delete candidate document from Firestore
@@ -134,57 +135,98 @@ export const deleteCandidate = createAsyncThunk(
 );
 
 
-export const addCandidate = createAsyncThunk("admin/addCandidate", async ({ registerNo, name, department, academicYear, markSheet, idCardFront, idCardBack, setUploadProgress }, { rejectWithValue }) => {
-  try {
-    if (!registerNo || !/^\d+$/.test(registerNo)) {
-      toast.error("Register Number must be a valid number.");
-      return rejectWithValue("Invalid Register Number.");
-    }
-
-    if (!name || name.trim().length < 3) {
-      toast.error("Name must be at least 3 characters long.");
-      return rejectWithValue("Invalid Name.");
-    }
-
-    const marksheetUrl = await uploadImageToFirebase(markSheet, "markSheet", registerNo, setUploadProgress);
-    const idCardFrontUrl = await uploadImageToFirebase(idCardFront, "idCardFront", registerNo, setUploadProgress);
-    const idCardBackUrl = await uploadImageToFirebase(idCardBack, "idCardBack", registerNo, setUploadProgress);
-
-    await addDoc(collection(db, "candidateData"), {
+export const addCandidate = createAsyncThunk(
+  "admin/addCandidate",
+  async (
+    {
       registerNo,
-      name: name.toLowerCase(),
+      name,
       department,
       academicYear,
-      markSheet: marksheetUrl,
-      idCardFront: idCardFrontUrl,
-      idCardBack: idCardBackUrl,
-      createdAt: serverTimestamp(),
-    });
+      markSheet,
+      idCardFront,
+      idCardBack,
+      certificate, // ✅ support certificate
+      setUploadProgress,
+    },
+    { rejectWithValue }
+  ) => {
+    try {
+      // 🔹 Validation: Register No
+      if (!registerNo || !/^\d+$/.test(registerNo)) {
+        toast.error("Register Number must be a valid number.");
+        return rejectWithValue("Invalid Register Number.");
+      }
 
-    // Send email notification
-    const success = await sendCandidateNotification(
-      {
-        name,
-        reg_no: registerNo,
+      // 🔹 Validation: Name
+      if (!name || name.trim().length < 3) {
+        toast.error("Name must be at least 3 characters long.");
+        return rejectWithValue("Invalid Name.");
+      }
+
+      // 🔹 Validation: At least one document is required
+      if (!markSheet && !certificate && !idCardFront && !idCardBack) {
+        toast.error("At least one document (Marksheet, Certificate, or ID Card) is required.");
+        return rejectWithValue("No documents provided.");
+      }
+
+      // 🔹 Upload files only if provided
+      const marksheetUrl = markSheet
+        ? await uploadImageToFirebase(markSheet, "markSheet", registerNo, setUploadProgress)
+        : null;
+
+      const idCardFrontUrl = idCardFront
+        ? await uploadImageToFirebase(idCardFront, "idCardFront", registerNo, setUploadProgress)
+        : null;
+
+      const idCardBackUrl = idCardBack
+        ? await uploadImageToFirebase(idCardBack, "idCardBack", registerNo, setUploadProgress)
+        : null;
+
+      const certificateUrl = certificate
+        ? await uploadImageToFirebase(certificate, "certificate", registerNo, setUploadProgress)
+        : null;
+
+      // 🔹 Save to Firestore
+      await addDoc(collection(db, "candidateData"), {
+        registerNo,
+        name: name.toLowerCase(),
         department,
-        academic_year: academicYear,
-      },
-      "Added"
-    );
-    if (!success) {
-      console.warn("Candidate email notification failed to send.");
+        academicYear,
+        markSheet: marksheetUrl,
+        idCardFront: idCardFrontUrl,
+        idCardBack: idCardBackUrl,
+        certificate: certificateUrl,
+        createdAt: serverTimestamp(),
+      });
+
+      // 🔹 Send email notification
+      const success = await sendCandidateNotification(
+        {
+          name,
+          reg_no: registerNo,
+          department,
+          academic_year: academicYear,
+        },
+        "Added"
+      );
+      if (!success) {
+        console.warn("Candidate email notification failed to send.");
+      }
+
+      // 🔹 Update candidate counts
+      await updateCandidateCounts(department, academicYear, true);
+
+      toast.success("Candidate added successfully");
+      return { success: true };
+    } catch (error) {
+      toast.error("Error adding candidate");
+      return rejectWithValue(error.message);
     }
-
-    // Update candidate counts after adding
-    await updateCandidateCounts(department, academicYear, true);
-
-    toast.success("Candidate added successfully");
-    return { success: true };
-  } catch (error) {
-    toast.error("Error adding candidate");
-    return rejectWithValue(error.message);
   }
-});
+);
+
+
 
 export const fetchCandidateCount = createAsyncThunk(
   "admin/fetchCandidateCount",
