@@ -3,7 +3,7 @@ import { collection, getDocs, increment, getDoc, doc, addDoc, serverTimestamp, d
 import { db } from "../config/firebaseConfig";
 import { toast } from "react-toastify";
 import { uploadImageToFirebase, deleteImageFromStorage } from "../utils/firebassImages";
-import sendCandidateNotification from "../utils/candidateActionNotify";
+// import sendCandidateNotification from "../utils/candidateActionNotify";
 
 
 export const updateCandidateCounts = async (department, academicYear, isAdding = true) => {
@@ -105,20 +105,20 @@ export const deleteCandidate = createAsyncThunk(
       // Delete candidate document from Firestore
       await deleteDoc(candidateRef);
 
-      // Send email after deletion
-      const success = await sendCandidateNotification(
-        {
-          name: candidateData.name,
-          reg_no: candidateData.registerNo,
-          department: candidateData.department,
-          academic_year: candidateData.academicYear,
-        },
-        "Deleted"
-      );
+      // // Send email after deletion
+      // const success = await sendCandidateNotification(
+      //   {
+      //     name: candidateData.name,
+      //     reg_no: candidateData.registerNo,
+      //     department: candidateData.department,
+      //     academic_year: candidateData.academicYear,
+      //   },
+      //   "Deleted"
+      // );
 
-      if (!success) {
-        console.warn("Candidate email notification failed to send.");
-      }
+      // if (!success) {
+      //   console.warn("Candidate email notification failed to send.");
+      // }
 
       // Update candidate counts after deletion
       await updateCandidateCounts(department, academicYear, false);
@@ -200,19 +200,19 @@ export const addCandidate = createAsyncThunk(
         createdAt: serverTimestamp(),
       });
 
-      // 🔹 Send email notification
-      const success = await sendCandidateNotification(
-        {
-          name,
-          reg_no: registerNo,
-          department,
-          academic_year: academicYear,
-        },
-        "Added"
-      );
-      if (!success) {
-        console.warn("Candidate email notification failed to send.");
-      }
+      // // 🔹 Send email notification
+      // const success = await sendCandidateNotification(
+      //   {
+      //     name,
+      //     reg_no: registerNo,
+      //     department,
+      //     academic_year: academicYear,
+      //   },
+      //   "Added"
+      // );
+      // if (!success) {
+      //   console.warn("Candidate email notification failed to send.");
+      // }
 
       // 🔹 Update candidate counts
       await updateCandidateCounts(department, academicYear, true);
