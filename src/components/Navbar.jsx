@@ -1,46 +1,53 @@
+
 import { useState } from "react";
-import { AppBar, Toolbar, Button, Menu, MenuItem, Box, IconButton, Drawer, List, ListItem, ListItemText, useMediaQuery } from "@mui/material";
+import {
+  AppBar,
+  Toolbar,
+  Button,
+  Menu,
+  MenuItem,
+  Box,
+  IconButton,
+  Drawer,
+  List,
+  ListItem,
+  ListItemText,
+  useMediaQuery,
+  Avatar,
+  Divider,
+  Typography,
+  Chip
+} from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
+import LogoutIcon from "@mui/icons-material/Logout";
+import DashboardIcon from "@mui/icons-material/Dashboard";
+import VerifiedIcon from "@mui/icons-material/Verified";
 import { useSelector, useDispatch } from "react-redux";
-import { logoutUser } from "../features/authSlice"; // Import logout action
+import { logoutUser } from "../features/authSlice";
 import { Link, useNavigate } from "react-router-dom";
-import SettingsIcon from '@mui/icons-material/Settings';
 
 const Navbar = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { isAuth, user} = useSelector((state) => state.auth);
+  const { isAuth, user } = useSelector((state) => state.auth);
+
   const [anchorEl, setAnchorEl] = useState(null);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const isMobile = useMediaQuery("(max-width: 768px)"); // Detects mobile screens
+  const isMobile = useMediaQuery("(max-width:768px)");
 
-  // Open Profile Menu
-  const handleMenuOpen = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
+  const username = user?.email?.split("@")[0];
 
-  // Close Profile Menu
-  const handleMenuClose = () => {
-    setAnchorEl(null);
-  };
-
-  // Logout Handler
   const handleLogout = () => {
     dispatch(logoutUser());
-    handleMenuClose();
+    setAnchorEl(null);
     navigate("/");
   };
 
-  // Toggle Mobile Drawer
-  const handleDrawerToggle = () => {
-    setMobileOpen(!mobileOpen);
-  };
-
-
   return (
-    <AppBar position="static" sx={{ backgroundColor: "#4460aa" }}>
-      <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
-        {/* Left - Logo */}
+    <AppBar position="sticky" sx={{ bgcolor: "#1f2a44" }}>
+      <Toolbar sx={{ justifyContent: "space-between" }}>
+        
+        {/* Brand */}
         <Box
           component="a"
           href="https://www.integratedinstituteoffacilitymanagement.com/"
@@ -49,78 +56,101 @@ const Navbar = () => {
           sx={{
             display: "flex",
             alignItems: "center",
-            backgroundColor: "#fff",
-            padding: "4px",
-            borderRadius: "10px",
-            boxShadow: "0px 2px 4px rgba(0, 0, 0, 0.2)",
-            transition: "transform 0.2s ease-in-out",
-            "&:hover": { transform: "scale(1.05)" },
+            bgcolor: "#fff",
+            px: 0.5,
+            py: 0.5,
+            borderRadius: "50%",
+            textDecoration: "none"
           }}
         >
-          <img src="/logo.png" alt="IIFM Logo" style={{ width: "30px", height: "auto" }} />
+          <img src="/logo.png" alt="IIFM Logo" width={40} />
         </Box>
 
+        {/* Mobile */}
         {isMobile ? (
-          // Mobile Menu (Hamburger)
           <>
-            <IconButton edge="end" color="inherit" onClick={handleDrawerToggle}>
+            <IconButton color="inherit" onClick={() => setMobileOpen(true)}>
               <MenuIcon />
             </IconButton>
 
-            {/* Mobile Drawer */}
-            <Drawer anchor="right" open={mobileOpen} onClose={handleDrawerToggle} >
-              <List sx={{ width: 200 }}>
-                <ListItem  component={Link} to="/" onClick={handleDrawerToggle}>
-                  <ListItemText primary="Global Verification" sx={{color : "black"}}/>
-                </ListItem>
-                <ListItem  component={Link} to="/about" onClick={handleDrawerToggle}>
-                  <ListItemText primary="About" sx={{color : "black"}}/>
-                </ListItem>
-                <ListItem  component={Link} to="/contact" onClick={handleDrawerToggle}>
-                  <ListItemText primary="Contact" sx={{color : "black"}}/>
+            <Drawer anchor="right" open={mobileOpen} onClose={() => setMobileOpen(false)}>
+              <List sx={{ width: 260 }}>
+                <ListItem component={Link} to="/" onClick={() => setMobileOpen(false)}>
+                  <VerifiedIcon sx={{ mr: 1 }} />
+                  <ListItemText primary="Global Verification" />
                 </ListItem>
 
+                {isAuth && (
+                  <ListItem component={Link} to="/dashboard" onClick={() => setMobileOpen(false)}>
+                    <DashboardIcon sx={{ mr: 1 }} />
+                    <ListItemText primary="Dashboard" />
+                  </ListItem>
+                )}
+
+                <Divider />
+
                 {isAuth ? (
-                  <>
-                    <ListItem  component={Link} to="/dashboard" onClick={handleDrawerToggle}>
-                      <ListItemText primary="Dashboard" sx={{color : "black"}}/>
-                    </ListItem>
-                    <ListItem  onClick={handleLogout}>
-                      <ListItemText sx={{color : "black"}}>{user && user.email.split("@gmail.com")[0] + " "}Logout</ListItemText>
-                    </ListItem>
-                  </>
+                  <ListItem onClick={handleLogout}>
+                    <LogoutIcon sx={{ mr: 1 }} />
+                    <ListItemText primary={`Logout (${username})`} />
+                  </ListItem>
                 ) : (
-                  <ListItem  component={Link} to="/login" onClick={handleDrawerToggle}>
-                    <ListItemText primary="Admin Login" sx={{color : "black"}}/>
+                  <ListItem component={Link} to="/login">
+                    <ListItemText primary="Admin Login" />
                   </ListItem>
                 )}
               </List>
             </Drawer>
           </>
         ) : (
-          // Desktop Navigation
-          <Box sx={{ display: "flex", alignItems: "center" }}>
-            <Button component={Link} to="/" color="rgb(255, 255, 255)" sx={{ fontFamily: "Open Sans, Roboto, Oxygen, Ubuntu, Cantarell, Lato, Helvetica Neue, sans-serif", fontSize : "1rem", fontWeight : "600" , textDecoration : "none", textTransform: "none"}}>Global Verification</Button>
-            <Button component={Link} to="/about" color="rgb(255, 255, 255)" sx={{ fontFamily: "Open Sans, Roboto, Oxygen, Ubuntu, Cantarell, Lato, Helvetica Neue, sans-serif", fontSize : "1rem", fontWeight : "600" , textDecoration : "none", textTransform: "none"}}>About</Button>
-            <Button component={Link} to="/contact" color="rgb(255, 255, 255)" sx={{ fontFamily: "Open Sans, Roboto, Oxygen, Ubuntu, Cantarell, Lato, Helvetica Neue, sans-serif", fontSize : "1rem", fontWeight : "600" , textDecoration : "none", textTransform: "none"}}>Contact</Button>
+          /* Desktop */
+          <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+            <Button component={Link} to="/" color="inherit" sx={{ fontWeight: 600 }}>
+              Global Verification
+            </Button>
+
+            {isAuth && (
+              <Button component={Link} to="/dashboard" color="inherit" sx={{ fontWeight: 600 }}>
+                Dashboard
+              </Button>
+            )}
 
             {isAuth ? (
               <>
-                <Button component={Link} to="/dashboard" color="rgb(255, 255, 255)" sx={{ fontFamily: "Open Sans, Roboto, Oxygen, Ubuntu, Cantarell, Lato, Helvetica Neue, sans-serif", fontSize : "1rem", fontWeight : "600" , textDecoration : "none", textTransform: "none"}}>Dashboard</Button>
+                <Chip
+                  label="Admin"
+                  size="small"
+                  sx={{ bgcolor: "#e3f2fd", color: "#0d47a1", fontWeight: 600 }}
+                />
 
-                {/* Profile Avatar */}
-                <IconButton onClick={handleMenuOpen} sx={{ ml: 2, backgroundColor: "white", width: '40px', height: "40px" , ":hover" : {color : "white"}}}>
-                  <SettingsIcon alt="logo" sx={{ width: 30, height: 30 }} />
-                  
+                <IconButton
+                  onClick={(e) => setAnchorEl(e.currentTarget)}
+                  aria-label="User menu"
+                >
+                  <Avatar sx={{ bgcolor: "#1976d2" }}>
+                    {username?.charAt(0).toUpperCase()}
+                  </Avatar>
                 </IconButton>
 
-                {/* Dropdown Menu */}
-                <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose} sx={{ mt: 1 }}>
-                  <MenuItem onClick={handleLogout}>{user && user.email.split("@gmail.com")[0] + " "}Logout</MenuItem>
+                <Menu
+                  anchorEl={anchorEl}
+                  open={Boolean(anchorEl)}
+                  onClose={() => setAnchorEl(null)}
+                >
+                  <MenuItem disabled>
+                    <Typography variant="body2">{user?.email}</Typography>
+                  </MenuItem>
+                  <Divider />
+                  <MenuItem onClick={handleLogout}>
+                    <LogoutIcon fontSize="small" sx={{ mr: 1 }} />
+                    Logout
+                  </MenuItem>
                 </Menu>
               </>
             ) : (
-              <Button component={Link} to="/login" color="rgb(255, 255, 255)" sx={{ fontFamily: "Open Sans, Roboto, Oxygen, Ubuntu, Cantarell, Lato, Helvetica Neue, sans-serif", fontSize : "1rem", fontWeight : "600" , textDecoration : "none", textTransform: "none"}} >Admin Login</Button>
+              <Button component={Link} to="/login" color="inherit" sx={{ fontWeight: 600 }}>
+                Admin Login
+              </Button>
             )}
           </Box>
         )}

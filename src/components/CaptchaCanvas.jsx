@@ -2,54 +2,92 @@ import React, { useEffect, useRef } from "react";
 
 const CaptchaCanvas = ({ text }) => {
   const canvasRef = useRef(null);
+  const containerRef = useRef(null);
 
-  useEffect(() => {
+  const drawCaptcha = () => {
     const canvas = canvasRef.current;
+    const container = containerRef.current;
+    if (!canvas || !container) return;
+
     const ctx = canvas.getContext("2d");
 
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    /* ---------- Responsive sizing ---------- */
+    const width = Math.min(container.offsetWidth, 260);
+    const height = 50;
 
-    // Background
-    ctx.fillStyle = "#f5f5f5";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    canvas.width = width;
+    canvas.height = height;
 
-    // Noise lines
-    for (let i = 0; i < 8; i++) {
-      ctx.strokeStyle = randomColor();
-      ctx.beginPath();
-      ctx.moveTo(Math.random() * canvas.width, Math.random() * canvas.height);
-      ctx.lineTo(Math.random() * canvas.width, Math.random() * canvas.height);
-      ctx.stroke();
-    }
+    ctx.clearRect(0, 0, width, height);
 
-    // Characters
-    const chars = text.split("");
-    chars.forEach((char, i) => {
-      const fontSize = 28 + Math.random() * 4;
-      ctx.font = `${fontSize}px Arial`;
-      ctx.fillStyle = randomColor();
+    /* ---------- Enterprise gradient background ---------- */
+    const gradient = ctx.createLinearGradient(0, 0, width, height);
+    gradient.addColorStop(0, "#f9fafb");
+    gradient.addColorStop(1, "#eef2f7");
 
-      const angle = (Math.random() - 0.5) * 0.6;
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, width, height);
+
+    /* ---------- Border ---------- */
+    ctx.strokeStyle = "#cbd5e1";
+    ctx.lineWidth = 1;
+    ctx.strokeRect(0.5, 0.5, width - 1, height - 1);
+
+    /* ---------- Text ---------- */
+    ctx.textBaseline = "middle";
+    ctx.textAlign = "center";
+    ctx.font = "600 22px Inter, system-ui, sans-serif";
+    ctx.fillStyle = "#0f172a";
+
+    const spacing = width / (text.length + 1);
+
+    text.split("").forEach((char, index) => {
+      const x = spacing * (index + 1);
+      const y = height / 2;
+
       ctx.save();
-      ctx.translate(20 + i * 25, 30);
-      ctx.rotate(angle);
+      ctx.translate(x, y);
+      ctx.rotate((Math.random() - 0.5) * 0.05); // very subtle
       ctx.fillText(char, 0, 0);
       ctx.restore();
     });
 
-    // Noise dots
-    for (let i = 0; i < 80; i++) {
-      ctx.fillStyle = randomColor();
+    /* ---------- Soft security lines (enterprise style) ---------- */
+    ctx.strokeStyle = "rgba(15, 23, 42, 0.06)";
+    ctx.lineWidth = 1;
+
+    for (let i = 0; i < 2; i++) {
       ctx.beginPath();
-      ctx.arc(Math.random() * canvas.width, Math.random() * canvas.height, 1, 0, 2 * Math.PI);
-      ctx.fill();
+      ctx.moveTo(0, Math.random() * height);
+      ctx.lineTo(width, Math.random() * height);
+      ctx.stroke();
     }
+  };
+
+  useEffect(() => {
+    drawCaptcha();
+    window.addEventListener("resize", drawCaptcha);
+    return () => window.removeEventListener("resize", drawCaptcha);
   }, [text]);
 
-  const randomColor = () =>
-    `rgb(${Math.floor(Math.random() * 200)},${Math.floor(Math.random() * 200)},${Math.floor(Math.random() * 200)})`;
-
-  return <canvas ref={canvasRef} width={180} height={50} style={{ borderRadius: 6 }} />;
+  return (
+    <div
+      ref={containerRef}
+      style={{
+        width: "100%",
+        maxWidth: 150,
+      }}
+    >
+      <canvas
+        ref={canvasRef}
+        style={{
+          width: "100%",
+          height: 50,
+          borderRadius: 6,
+        }}
+      />
+    </div>
+  );
 };
 
 export default CaptchaCanvas;

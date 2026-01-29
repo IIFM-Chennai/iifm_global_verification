@@ -10,9 +10,8 @@ import { Routes, Route, Navigate } from 'react-router-dom'
 import ProtectedRoute from './components/ProtectedRoute'
 import SearchCandidate from './pages/SearchCandidate';
 import CandidateDetails from './pages/CandidateDetails';
-import Contact from './pages/Contact';
 import Footer from './components/Footer';
-import About from './pages/About';
+
 
 
 function App() {
@@ -33,8 +32,6 @@ function App() {
         {/* Public Routes */}
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/contact" element={<Contact />} />
-        <Route path="/about" element={<About />} />
 
         {/* Protected Admin Routes */}
         <Route element={<ProtectedRoute />}>

@@ -7,63 +7,65 @@ import {
   Box,
   Card,
   CardMedia,
-  Paper
+  Paper,
+  Divider,
 } from "@mui/material";
+import RefreshIcon from "@mui/icons-material/Refresh";
 import { collection, query, where, getDocs } from "firebase/firestore";
 import { db } from "../config/firebaseConfig";
-import Spiner from "../components/Spiner";
-import { toast } from "react-toastify";
 import { useForm } from "react-hook-form";
+import { toast } from "react-toastify";
 import CaptchaCanvas from "../components/CaptchaCanvas";
+import Spiner from "../components/Spiner";
 
+/* ---------------- CAPTCHA ---------------- */
 const generateCaptcha = () => {
-  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-  let captcha = "";
-  for (let i = 0; i < 6; i++) {
-    captcha += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-  return captcha;
+  const chars =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  return Array.from({ length: 6 }, () =>
+    chars.charAt(Math.floor(Math.random() * chars.length))
+  ).join("");
 };
 
 const StudentSearch = () => {
   const [studentData, setStudentData] = useState(null);
-  const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const [searchComplete, setSearchComplete] = useState(false);
-
   const [captcha, setCaptcha] = useState(generateCaptcha());
 
-  const { register, handleSubmit, reset, watch, formState: { errors } } = useForm();
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm();
 
+  /* ---------------- SEARCH HANDLER ---------------- */
   const handleSearch = async (data) => {
     if (data.captchaInput !== captcha) {
-      toast.error("Invalid CAPTCHA!");
+      toast.error("Invalid captcha");
       return;
     }
 
-    setError(null);
-    setStudentData(null);
     setLoading(true);
+    setStudentData(null);
 
     try {
       const q = query(
         collection(db, "candidateData"),
         where("registerNo", "==", data.registerNo.trim())
       );
-      const querySnapshot = await getDocs(q);
 
-      if (!querySnapshot.empty) {
-        querySnapshot.forEach((doc) => {
-          setStudentData(doc.data());
-        });
-        toast.success("Candidate found successfully!");
+      const snapshot = await getDocs(q);
+
+      if (!snapshot.empty) {
+        snapshot.forEach((doc) => setStudentData(doc.data()));
         setSearchComplete(true);
+        toast.success("Verification successful");
       } else {
-        setError("Candidate not found!");
         toast.error("Candidate not found");
       }
     } catch (err) {
-      setError("Error fetching data");
       toast.error("Error fetching data");
     } finally {
       setLoading(false);
@@ -80,202 +82,192 @@ const StudentSearch = () => {
   };
 
   return (
-    <Container maxWidth="md" sx={{ mt: 5 }}>
-      <Typography
-        variant="h1"
-        mb={3}
-        align="center"
-        color="#2c3e50"
-        sx={{
-          fontWeight: 700,
-          fontSize: { xs: "2rem", sm: "3rem", md: "4rem", lg: "5rem" },
-        }}
-      >
-        IIFM Global Verification
-      </Typography>
+    <Container maxWidth="md" sx={{ mt: 6, mb: 8 }}>
+      {/* ---------------- HEADER ---------------- */}
+      <Box sx={{ textAlign: "center", mb: 4 }}>
+        <Typography sx={{ fontSize: "2rem", fontWeight: 700, color: "#0f172a" }}>
+          IIFM Global Verification
+        </Typography>
+        <Typography sx={{ mt: 1, color: "#64748b", fontSize: "0.95rem" }}>
+          Official verification of certificates issued by IIFM Academy
+        </Typography>
+      </Box>
 
+      {/* ---------------- SEARCH FORM ---------------- */}
       {!searchComplete ? (
-        <Paper elevation={3} sx={{ p: 3, backgroundColor: "#fff" }}>
-          <Typography variant="h6" sx={{ mb: 2 }}>Search Candidate</Typography>
+        <Paper sx={{ p: 3, borderRadius: 2, border: "1px solid #e2e8f0" }}>
+          <Typography sx={{ fontWeight: 600, mb: 2 }}>
+            Candidate Verification
+          </Typography>
 
           <form onSubmit={handleSubmit(handleSearch)}>
-            {/* Register No */}
             <TextField
-              label="Enter Register No"
-              variant="outlined"
+              label="Register Number"
               fullWidth
+              sx={{ mb: 2 }}
               {...register("registerNo", {
                 required: "Register number is required",
-                pattern: {
-                  value: /^[0-9]+$/,
-                  message: "Only numbers are allowed"
-                }
+                pattern: { value: /^[0-9]+$/, message: "Only numbers allowed" },
               })}
-              sx={{ mb: 2 }}
               error={Boolean(errors.registerNo)}
               helperText={errors.registerNo?.message}
             />
 
-            {/* Captcha Display */}
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                mb: 2,
-              }}
-            >
+            {/* CAPTCHA */}
+            {/* <Box sx={{ mb: 2 }}>
               <CaptchaCanvas text={captcha} />
-
               <Button
                 variant="outlined"
                 onClick={() => setCaptcha(generateCaptcha())}
+                sx={{ mt: 1 }}
               >
-                Refresh
+                <RefreshIcon fontSize="small" /> Refresh
               </Button>
+            </Box> */}
+
+            <Box
+              sx={{
+                mb: 2,
+              }}
+            >
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 1,
+                }}
+              >
+                <Box sx={{ flex: 1 }}>
+                  <CaptchaCanvas text={captcha} />
+                </Box>
+
+                <Button
+                  variant="outlined"
+                  onClick={() => setCaptcha(generateCaptcha())}
+                  sx={{
+                    height: 46,
+                    px: 1.5,
+                    textTransform: "none",
+                    display: "flex",
+                    gap: 0.5,
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  <RefreshIcon fontSize="small" />
+                  <Box component="span" sx={{ display: { xs: "none", sm: "inline" } }}>
+                    Refresh
+                  </Box>
+                </Button>
+              </Box>
             </Box>
 
-            {/* Captcha Input */}
             <TextField
               label="Enter Captcha"
-              variant="outlined"
               fullWidth
+              sx={{ mb: 3 }}
               {...register("captchaInput", { required: "Captcha is required" })}
-              sx={{ mb: 2 }}
               error={Boolean(errors.captchaInput)}
               helperText={errors.captchaInput?.message}
             />
 
-            {/* Search Button */}
             <Button
               type="submit"
               variant="contained"
-              sx={{
-                backgroundColor: "#4460aa",
-                width: "100%",
-                opacity: loading ? 0.5 : 1,
-                cursor: loading ? "not-allowed" : "pointer"
-              }}
+              fullWidth
               disabled={loading}
+              sx={{ height: 48 }}
             >
-              {loading ? "Searching..." : "Search"}
+              {loading ? "Verifying..." : "Verify Candidate"}
             </Button>
           </form>
         </Paper>
       ) : (
-        <Box sx={{ mt: 4 }}>
-          <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 3 }}>
-            <Button
-              variant="contained"
-              sx={{
-                backgroundColor: "#4460aa",
-                "&:hover": { backgroundColor: "#36508a" },
-                "&:active": { backgroundColor: "#2c4378" }
-              }}
-              onClick={handleRescan}
-            >
-              Research
-            </Button>
-          </Box>
+        /* ---------------- RESULT VIEW (PROTECTED) ---------------- */
+        <Box
+          onContextMenu={(e) => e.preventDefault()}
+          sx={{
+            userSelect: "none",
+            WebkitUserSelect: "none",
+            WebkitUserDrag: "none",
+          }}
+        >
+          <Paper
+            sx={{
+              p: 2,
+              mb: 3,
+              borderLeft: "4px solid #16a34a",
+              backgroundColor: "#f0fdf4",
+            }}
+          >
+            <Typography sx={{ fontWeight: 600 }}>
+              Verification Successful
+            </Typography>
+            <Typography sx={{ fontSize: "0.9rem" }}>
+              This record is valid and issued by IIFM Academy.
+            </Typography>
+          </Paper>
 
-          {/* <Card sx={{ mb: 3 }}>
-            <CardMedia
-              component="img"
-              image={studentData?.markSheet}
-              alt="Marksheet"
-              sx={{ pointerEvents: "none", userSelect: "none" }}
-            />
-          </Card>
+          <Button variant="outlined" onClick={handleRescan} sx={{ mb: 3 }}>
+            Verify Another Candidate
+          </Button>
 
-          <Box sx={{
-            display: "flex",
-            flexDirection: { xs: "column", sm: "row" },
-            justifyContent: "space-between",
-            gap: 2
-          }}>
-            <Card sx={{ flex: 1 }}>
-              <CardMedia
-                component="img"
-                image={studentData?.idCardFront}
-                alt="ID Card Front"
-                sx={{ pointerEvents: "none", userSelect: "none" }}
-              />
-            </Card>
-
-            <Card sx={{ flex: 1 }}>
-              <CardMedia
-                component="img"
-                image={studentData?.idCardBack}
-                alt="ID Card Back"
-                sx={{ pointerEvents: "none", userSelect: "none" }}
-              />
-            </Card>
-          </Box> */}
-
-          {/* Marksheet Section */}
+          {/* DOCUMENTS */}
           {studentData?.markSheet && (
             <Card sx={{ mb: 3 }}>
+              <Typography sx={{ p: 1 }}>Marksheet</Typography>
+              <Divider />
               <CardMedia
                 component="img"
                 image={studentData.markSheet}
-                alt="Marksheet"
-                sx={{ pointerEvents: "none", userSelect: "none" }}
+                draggable={false}
               />
             </Card>
           )}
 
-          {/* Certificate Section */}
           {studentData?.certificate && (
             <Card sx={{ mb: 3 }}>
+              <Typography sx={{ p: 1 }}>Certificate</Typography>
+              <Divider />
               <CardMedia
                 component="img"
                 image={studentData.certificate}
-                alt="Certificate"
-                sx={{ pointerEvents: "none", userSelect: "none" }}
+                draggable={false}
               />
             </Card>
           )}
 
-          {/* ID Card Section */}
           {(studentData?.idCardFront || studentData?.idCardBack) && (
-            <Box
-              sx={{
-                display: "flex",
-                flexDirection: { xs: "column", sm: "row" },
-                justifyContent: "space-between",
-                gap: 2
-              }}
-            >
+            <Box sx={{ display: "flex", gap: 2 }}>
               {studentData?.idCardFront && (
                 <Card sx={{ flex: 1 }}>
+                  <Typography sx={{ p: 1 }}>ID Card Front</Typography>
+                  <Divider />
                   <CardMedia
                     component="img"
                     image={studentData.idCardFront}
-                    alt="ID Card Front"
-                    sx={{ pointerEvents: "none", userSelect: "none" }}
+                    draggable={false}
                   />
                 </Card>
               )}
 
               {studentData?.idCardBack && (
                 <Card sx={{ flex: 1 }}>
+                  <Typography sx={{ p: 1 }}>ID Card Back</Typography>
+                  <Divider />
                   <CardMedia
                     component="img"
                     image={studentData.idCardBack}
-                    alt="ID Card Back"
-                    sx={{ pointerEvents: "none", userSelect: "none" }}
+                    draggable={false}
                   />
                 </Card>
               )}
             </Box>
           )}
 
-
         </Box>
       )}
 
       {loading && <Spiner />}
-      {error && <Typography color="error" sx={{ mt: 2, textAlign: "center" }}>{error}</Typography>}
     </Container>
   );
 };

@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { collection, getDocs, increment, getDoc, doc, addDoc, serverTimestamp, deleteDoc, query, orderBy, limit, setDoc } from "firebase/firestore";
+import { collection, getDocs, increment, where,getDoc, doc, addDoc, serverTimestamp, deleteDoc, query, orderBy, limit, setDoc } from "firebase/firestore";
 import { db } from "../config/firebaseConfig";
 import { toast } from "react-toastify";
 import { uploadImageToFirebase, deleteImageFromStorage } from "../utils/firebassImages";
@@ -134,7 +134,6 @@ export const deleteCandidate = createAsyncThunk(
   }
 );
 
-
 export const addCandidate = createAsyncThunk(
   "admin/addCandidate",
   async (
@@ -146,87 +145,112 @@ export const addCandidate = createAsyncThunk(
       markSheet,
       idCardFront,
       idCardBack,
-      certificate, // ✅ support certificate
+      certificate,
       setUploadProgress,
     },
     { rejectWithValue }
   ) => {
     try {
+      // 🔹 Normalize Register Number
+      const normalizedRegisterNo = String(registerNo).trim();
+
       // 🔹 Validation: Register No
-      if (!registerNo || !/^\d+$/.test(registerNo)) {
-        toast.error("Register Number must be a valid number.");
-        return rejectWithValue("Invalid Register Number.");
+      if (!normalizedRegisterNo || !/^\d+$/.test(normalizedRegisterNo)) {
+        toast.error("Register Number must be a valid numeric value.");
+        return rejectWithValue("Invalid Register Number");
       }
 
       // 🔹 Validation: Name
       if (!name || name.trim().length < 3) {
         toast.error("Name must be at least 3 characters long.");
-        return rejectWithValue("Invalid Name.");
+        return rejectWithValue("Invalid Name");
       }
 
-      // 🔹 Validation: At least one document is required
+      // 🔹 Validation: At least one document required
       if (!markSheet && !certificate && !idCardFront && !idCardBack) {
-        toast.error("At least one document (Marksheet, Certificate, or ID Card) is required.");
-        return rejectWithValue("No documents provided.");
+        toast.error(
+          "At least one document (Marksheet, Certificate, or ID Card) is required."
+        );
+        return rejectWithValue("No documents provided");
       }
 
-      // 🔹 Upload files only if provided
-      const marksheetUrl = markSheet
-        ? await uploadImageToFirebase(markSheet, "markSheet", registerNo, setUploadProgress)
+      // 🔹 Check for duplicate candidate
+      const q = query(
+        collection(db, "candidateData"),
+        where("registerNo", "==", normalizedRegisterNo)
+      );
+
+      const snapshot = await getDocs(q);
+
+      if (!snapshot.empty) {
+        toast.error(
+          `Candidate with Register Number ${normalizedRegisterNo} already exists.`
+        );
+        return rejectWithValue("Candidate already exists");
+      }
+
+      // 🔹 Upload files (only if provided)
+      const markSheetUrl = markSheet
+        ? await uploadImageToFirebase(
+            markSheet,
+            "markSheet",
+            normalizedRegisterNo,
+            setUploadProgress
+          )
         : null;
 
       const idCardFrontUrl = idCardFront
-        ? await uploadImageToFirebase(idCardFront, "idCardFront", registerNo, setUploadProgress)
+        ? await uploadImageToFirebase(
+            idCardFront,
+            "idCardFront",
+            normalizedRegisterNo,
+            setUploadProgress
+          )
         : null;
 
       const idCardBackUrl = idCardBack
-        ? await uploadImageToFirebase(idCardBack, "idCardBack", registerNo, setUploadProgress)
+        ? await uploadImageToFirebase(
+            idCardBack,
+            "idCardBack",
+            normalizedRegisterNo,
+            setUploadProgress
+          )
         : null;
 
       const certificateUrl = certificate
-        ? await uploadImageToFirebase(certificate, "certificate", registerNo, setUploadProgress)
+        ? await uploadImageToFirebase(
+            certificate,
+            "certificate",
+            normalizedRegisterNo,
+            setUploadProgress
+          )
         : null;
 
       // 🔹 Save to Firestore
       await addDoc(collection(db, "candidateData"), {
-        registerNo,
+        registerNo: normalizedRegisterNo,
         name: name.toLowerCase(),
         department,
         academicYear,
-        markSheet: marksheetUrl,
+        markSheet: markSheetUrl,
         idCardFront: idCardFrontUrl,
         idCardBack: idCardBackUrl,
         certificate: certificateUrl,
         createdAt: serverTimestamp(),
       });
 
-      // // 🔹 Send email notification
-      // const success = await sendCandidateNotification(
-      //   {
-      //     name,
-      //     reg_no: registerNo,
-      //     department,
-      //     academic_year: academicYear,
-      //   },
-      //   "Added"
-      // );
-      // if (!success) {
-      //   console.warn("Candidate email notification failed to send.");
-      // }
-
-      // 🔹 Update candidate counts
+      // 🔹 Update counts
       await updateCandidateCounts(department, academicYear, true);
 
       toast.success("Candidate added successfully");
       return { success: true };
     } catch (error) {
-      toast.error("Error adding candidate");
+      console.error("Add candidate failed:", error);
+      toast.error(error.message || "Error adding candidate");
       return rejectWithValue(error.message);
     }
   }
 );
-
-
 
 export const fetchCandidateCount = createAsyncThunk(
   "admin/fetchCandidateCount",

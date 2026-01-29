@@ -76,8 +76,6 @@ npm run dev
 ### **Public Routes**
 - `/` → Home Page
 - `/login` → Admin Login
-- `/contact` → Contact Page
-- `/about` → About Page
 
 ### **Protected Admin Routes**
 - `/dashboard` → Admin Dashboard
@@ -99,6 +97,7 @@ Each candidate entry follows this structure:
   "department": "POWER_PLANT",
   "academicYear": "2024-2025",
   "markSheet": "https://storage.firebase.com/...",
+  "certficate": "https://storage.firebase.com/...",
   "idCardFront": "https://storage.firebase.com/...",
   "idCardBack": "https://storage.firebase.com/...",
   "createdAt": "8 March 2025 at 09:20:32 UTC+5:30"
