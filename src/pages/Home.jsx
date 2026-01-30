@@ -8,7 +8,6 @@ import {
   Card,
   CardMedia,
   Paper,
-  Divider,
 } from "@mui/material";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import { collection, query, where, getDocs } from "firebase/firestore";
@@ -114,17 +113,6 @@ const StudentSearch = () => {
             />
 
             {/* CAPTCHA */}
-            {/* <Box sx={{ mb: 2 }}>
-              <CaptchaCanvas text={captcha} />
-              <Button
-                variant="outlined"
-                onClick={() => setCaptcha(generateCaptcha())}
-                sx={{ mt: 1 }}
-              >
-                <RefreshIcon fontSize="small" /> Refresh
-              </Button>
-            </Box> */}
-
             <Box
               sx={{
                 mb: 2,
@@ -214,8 +202,6 @@ const StudentSearch = () => {
           {/* DOCUMENTS */}
           {studentData?.markSheet && (
             <Card sx={{ mb: 3 }}>
-              <Typography sx={{ p: 1 }}>Marksheet</Typography>
-              <Divider />
               <CardMedia
                 component="img"
                 image={studentData.markSheet}
@@ -226,8 +212,6 @@ const StudentSearch = () => {
 
           {studentData?.certificate && (
             <Card sx={{ mb: 3 }}>
-              <Typography sx={{ p: 1 }}>Certificate</Typography>
-              <Divider />
               <CardMedia
                 component="img"
                 image={studentData.certificate}
@@ -240,8 +224,6 @@ const StudentSearch = () => {
             <Box sx={{ display: "flex", gap: 2 }}>
               {studentData?.idCardFront && (
                 <Card sx={{ flex: 1 }}>
-                  <Typography sx={{ p: 1 }}>ID Card Front</Typography>
-                  <Divider />
                   <CardMedia
                     component="img"
                     image={studentData.idCardFront}
@@ -252,8 +234,6 @@ const StudentSearch = () => {
 
               {studentData?.idCardBack && (
                 <Card sx={{ flex: 1 }}>
-                  <Typography sx={{ p: 1 }}>ID Card Back</Typography>
-                  <Divider />
                   <CardMedia
                     component="img"
                     image={studentData.idCardBack}

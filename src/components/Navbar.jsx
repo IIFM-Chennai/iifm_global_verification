@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import {
   AppBar,
@@ -16,7 +15,7 @@ import {
   Avatar,
   Divider,
   Typography,
-  Chip
+  Chip,
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import LogoutIcon from "@mui/icons-material/Logout";
@@ -37,20 +36,25 @@ const Navbar = () => {
 
   const username = user?.email?.split("@")[0];
 
+  /* ---------------- HELPERS ---------------- */
+  const closeMobileDrawer = () => {
+    setMobileOpen(false);
+  };
+
   const handleLogout = () => {
     dispatch(logoutUser());
     setAnchorEl(null);
+    closeMobileDrawer();
     navigate("/");
   };
 
   return (
     <AppBar position="sticky" sx={{ bgcolor: "#1f2a44" }}>
       <Toolbar sx={{ justifyContent: "space-between" }}>
-        
-        {/* Brand */}
+        {/* ---------------- BRAND ---------------- */}
         <Box
           component="a"
-          href="https://www.integratedinstituteoffacilitymanagement.com/"
+          href="https://iifmacademy.com/"
           target="_blank"
           rel="noopener noreferrer"
           sx={{
@@ -60,28 +64,40 @@ const Navbar = () => {
             px: 0.5,
             py: 0.5,
             borderRadius: "50%",
-            textDecoration: "none"
+            textDecoration: "none",
           }}
         >
           <img src="/logo.png" alt="IIFM Logo" width={40} />
         </Box>
 
-        {/* Mobile */}
+        {/* ---------------- MOBILE ---------------- */}
         {isMobile ? (
           <>
             <IconButton color="inherit" onClick={() => setMobileOpen(true)}>
               <MenuIcon />
             </IconButton>
 
-            <Drawer anchor="right" open={mobileOpen} onClose={() => setMobileOpen(false)}>
+            <Drawer
+              anchor="right"
+              open={mobileOpen}
+              onClose={closeMobileDrawer}
+            >
               <List sx={{ width: 260 }}>
-                <ListItem component={Link} to="/" onClick={() => setMobileOpen(false)}>
+                <ListItem
+                  component={Link}
+                  to="/"
+                  onClick={closeMobileDrawer}
+                >
                   <VerifiedIcon sx={{ mr: 1 }} />
                   <ListItemText primary="Global Verification" />
                 </ListItem>
 
                 {isAuth && (
-                  <ListItem component={Link} to="/dashboard" onClick={() => setMobileOpen(false)}>
+                  <ListItem
+                    component={Link}
+                    to="/dashboard"
+                    onClick={closeMobileDrawer}
+                  >
                     <DashboardIcon sx={{ mr: 1 }} />
                     <ListItemText primary="Dashboard" />
                   </ListItem>
@@ -95,7 +111,11 @@ const Navbar = () => {
                     <ListItemText primary={`Logout (${username})`} />
                   </ListItem>
                 ) : (
-                  <ListItem component={Link} to="/login">
+                  <ListItem
+                    component={Link}
+                    to="/login"
+                    onClick={closeMobileDrawer}
+                  >
                     <ListItemText primary="Admin Login" />
                   </ListItem>
                 )}
@@ -103,14 +123,24 @@ const Navbar = () => {
             </Drawer>
           </>
         ) : (
-          /* Desktop */
+          /* ---------------- DESKTOP ---------------- */
           <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-            <Button component={Link} to="/" color="inherit" sx={{ fontWeight: 600 }}>
+            <Button
+              component={Link}
+              to="/"
+              color="inherit"
+              sx={{ fontWeight: 600 }}
+            >
               Global Verification
             </Button>
 
             {isAuth && (
-              <Button component={Link} to="/dashboard" color="inherit" sx={{ fontWeight: 600 }}>
+              <Button
+                component={Link}
+                to="/dashboard"
+                color="inherit"
+                sx={{ fontWeight: 600 }}
+              >
                 Dashboard
               </Button>
             )}
@@ -120,7 +150,11 @@ const Navbar = () => {
                 <Chip
                   label="Admin"
                   size="small"
-                  sx={{ bgcolor: "#e3f2fd", color: "#0d47a1", fontWeight: 600 }}
+                  sx={{
+                    bgcolor: "#e3f2fd",
+                    color: "#0d47a1",
+                    fontWeight: 600,
+                  }}
                 />
 
                 <IconButton
@@ -138,7 +172,9 @@ const Navbar = () => {
                   onClose={() => setAnchorEl(null)}
                 >
                   <MenuItem disabled>
-                    <Typography variant="body2">{user?.email}</Typography>
+                    <Typography variant="body2">
+                      {user?.email}
+                    </Typography>
                   </MenuItem>
                   <Divider />
                   <MenuItem onClick={handleLogout}>
@@ -148,7 +184,12 @@ const Navbar = () => {
                 </Menu>
               </>
             ) : (
-              <Button component={Link} to="/login" color="inherit" sx={{ fontWeight: 600 }}>
+              <Button
+                component={Link}
+                to="/login"
+                color="inherit"
+                sx={{ fontWeight: 600 }}
+              >
                 Admin Login
               </Button>
             )}
