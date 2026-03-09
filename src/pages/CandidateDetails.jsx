@@ -3,20 +3,22 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "../config/firebaseConfig";
-import { 
-  Box, Typography, Card, CardContent, CircularProgress, 
-  Paper, Divider 
+import {
+  Box, Typography, Card, CardContent, CircularProgress,
+  Paper, Divider, Button
 } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 
 const CandidateDetails = () => {
   const { candidateId } = useParams();
   const [candidate, setCandidate] = useState(null);
   const [loading, setLoading] = useState(true);
-  
+  const navigate = useNavigate();
+
   useEffect(() => {
     const fetchCandidateDetails = async () => {
       try {
-        const docRef = doc(db, "candidateData", candidateId);
+        const docRef = doc(db, "candidatesDiplomaData", candidateId);
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
           setCandidate(docSnap.data());
@@ -66,7 +68,17 @@ const CandidateDetails = () => {
               {new Date(candidate.createdAt.seconds * 1000).toLocaleString()}
             </Typography>
           )}
+
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={() => navigate(`/dashboard/edit-candidate/${candidateId}`)}
+            sx={{mt : 2}}
+          >
+            Edit Candidate
+          </Button>
         </CardContent>
+
       </Card>
 
       {/* Marksheet Section (only if available) */}
@@ -76,11 +88,11 @@ const CandidateDetails = () => {
             Marksheet
           </Typography>
           <Box sx={{ display: "flex", justifyContent: "center" }}>
-            <img 
-              src={candidate.markSheet} 
-              loading="lazy" 
-              alt="Marksheet" 
-              style={{ maxWidth: "100%", height: "auto", borderRadius: 10 }} 
+            <img
+              src={candidate.markSheet}
+              loading="lazy"
+              alt="Marksheet"
+              style={{ maxWidth: "100%", height: "auto", borderRadius: 10 }}
             />
           </Box>
         </Paper>
@@ -93,11 +105,11 @@ const CandidateDetails = () => {
             Certificate
           </Typography>
           <Box sx={{ display: "flex", justifyContent: "center" }}>
-            <img 
-              src={candidate.certificate} 
-              loading="lazy" 
-              alt="Certificate" 
-              style={{ maxWidth: "100%", height: "auto", borderRadius: 10 }} 
+            <img
+              src={candidate.certificate}
+              loading="lazy"
+              alt="Certificate"
+              style={{ maxWidth: "100%", height: "auto", borderRadius: 10 }}
             />
           </Box>
         </Paper>
@@ -113,22 +125,22 @@ const CandidateDetails = () => {
             {candidate.idCardFront && (
               <Box sx={{ flex: 1, textAlign: "center" }}>
                 <Typography variant="h6">Front</Typography>
-                <img 
-                  src={candidate.idCardFront} 
-                  loading="lazy" 
-                  alt="ID Card Front" 
-                  style={{ width: "100%", maxWidth: "250px", borderRadius: 10 }} 
+                <img
+                  src={candidate.idCardFront}
+                  loading="lazy"
+                  alt="ID Card Front"
+                  style={{ width: "100%", maxWidth: "250px", borderRadius: 10 }}
                 />
               </Box>
             )}
             {candidate.idCardBack && (
               <Box sx={{ flex: 1, textAlign: "center" }}>
                 <Typography variant="h6">Back</Typography>
-                <img 
-                  src={candidate.idCardBack} 
-                  loading="lazy"  
-                  alt="ID Card Back" 
-                  style={{ width: "100%", maxWidth: "250px", borderRadius: 10 }} 
+                <img
+                  src={candidate.idCardBack}
+                  loading="lazy"
+                  alt="ID Card Back"
+                  style={{ width: "100%", maxWidth: "250px", borderRadius: 10 }}
                 />
               </Box>
             )}

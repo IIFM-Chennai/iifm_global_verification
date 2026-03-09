@@ -55,11 +55,12 @@ export const updateCandidateCounts = async (department, academicYear, isAdding =
   }
 };
 
+
 export const fetchLatestCandidates = createAsyncThunk(
   "admin/fetchLatestCandidates ",
   async (_, { rejectWithValue }) => {
     try {
-      const candidateCollection = collection(db, "candidateData");
+      const candidateCollection = collection(db, "candidatesDiplomaData");
       const candidatesQuery = query(candidateCollection, orderBy("createdAt", "desc"), limit(10));
 
       const snapshot = await getDocs(candidatesQuery);
@@ -82,7 +83,7 @@ export const deleteCandidate = createAsyncThunk(
   "admin/deleteCandidate",
   async (candidateId, { dispatch, getState, rejectWithValue }) => {
     try {
-      const candidateRef = doc(db, "candidateData", candidateId);
+      const candidateRef = doc(db, "candidatesDiplomaData", candidateId);
       const candidateSnap = await getDoc(candidateRef);
 
       if (!candidateSnap.exists()) {
@@ -176,7 +177,7 @@ export const addCandidate = createAsyncThunk(
 
       // 🔹 Check for duplicate candidate
       const q = query(
-        collection(db, "candidateData"),
+        collection(db, "candidatesDiplomaData"),
         where("registerNo", "==", normalizedRegisterNo)
       );
 
@@ -227,7 +228,7 @@ export const addCandidate = createAsyncThunk(
         : null;
 
       // 🔹 Save to Firestore
-      await addDoc(collection(db, "candidateData"), {
+      await addDoc(collection(db, "candidatesDiplomaData"), {
         registerNo: normalizedRegisterNo,
         name: name.toLowerCase(),
         department,

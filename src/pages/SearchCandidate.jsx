@@ -75,7 +75,7 @@ const CandidateSearch = () => {
         constraints.push(endAt(searchLower + "\uf8ff"));
       }
 
-      const q = query(collection(db, "candidateData"), ...constraints);
+      const q = query(collection(db, "candidatesDiplomaData"), ...constraints);
       const snapshot = await getDocs(q);
 
       if (snapshot.empty) {

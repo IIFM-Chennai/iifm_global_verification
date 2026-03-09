@@ -2,6 +2,7 @@ import { useState } from "react";
 import { IconButton, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Button } from "@mui/material";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import DeleteIcon from "@mui/icons-material/Delete";
+import EditIcon from "@mui/icons-material/Edit";
 import { useDispatch, useSelector } from "react-redux";
 import { deleteCandidate} from "../features/adminSlice";
 import { toast } from "react-toastify";
@@ -32,8 +33,13 @@ const CandidateActions = ({ candidateId }) => {
   return (
     <>
       {/* View Button */}
-      <IconButton color="primary" onClick={() => navigate(`/dashboard/candidate/${candidateId}`)}>
+      <IconButton color="success" onClick={() => navigate(`/dashboard/candidate/${candidateId}`)}>
         <VisibilityIcon />
+      </IconButton>
+
+      {/* Edit Button */}
+      <IconButton color="primary" onClick={() => navigate(`/dashboard/edit-candidate/${candidateId}`)}>
+        <EditIcon />
       </IconButton>
 
       {/* Delete Button (Opens Confirmation Dialog) */}
@@ -50,7 +56,7 @@ const CandidateActions = ({ candidateId }) => {
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setOpen(false)} color="primary">
+          <Button onClick={() => setOpen(false)} color="primary" disabled={deleteCandidateLoading}>
             Cancel
           </Button>
           <Button onClick={handleDelete} color="error" disabled={deleteCandidateLoading}>

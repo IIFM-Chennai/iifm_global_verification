@@ -51,7 +51,7 @@ const StudentSearch = () => {
 
     try {
       const q = query(
-        collection(db, "candidateData"),
+        collection(db, "candidatesDiplomaData"),
         where("registerNo", "==", data.registerNo.trim())
       );
 

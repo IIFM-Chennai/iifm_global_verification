@@ -10,6 +10,7 @@ import { Routes, Route, Navigate } from 'react-router-dom'
 import ProtectedRoute from './components/ProtectedRoute'
 import SearchCandidate from './pages/SearchCandidate';
 import CandidateDetails from './pages/CandidateDetails';
+import EditCandidate from './pages/EditCandidate';
 import Footer from './components/Footer';
 
 
@@ -40,6 +41,7 @@ function App() {
             <Route path="/dashboard/add-candidate" element={<AddCandidate />} />
             <Route path="/dashboard/search-candidate" element={<SearchCandidate />} />
             <Route path="/dashboard/candidate/:candidateId" element={<CandidateDetails />} />
+            <Route path="/dashboard/edit-candidate/:candidateId" element={<EditCandidate />} />
         </Route>
 
         {/* Redirect unknown routes */}
