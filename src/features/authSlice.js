@@ -98,7 +98,8 @@ const authSlice = createSlice({
                 state.isAuth = true;
                 state.error = null;
 
-                const expiryTime = Date.now() + 3 * 24 * 60 * 60 * 1000; // 3 days in milliseconds
+                const expiryTime = Date.now() + 1 * 24 * 60 * 60 * 1000; // 1 day expiration
+                // const expiryTime = Date.now() + 2 * 60 * 1000; // 2 minutes for testing
 
                 // Store in localStorage with encrypt
                 localStorage.setItem("user", encryptData(action.payload));

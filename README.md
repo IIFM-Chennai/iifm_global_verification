@@ -58,10 +58,6 @@ VITE_FIREBASE_MESSAGING_SENDER_ID=your_messaging_sender_id
 VITE_FIREBASE_APP_ID=your_app_id
 VITE_SECRET_KEY=your_secret_key
 VITE_ADMIN_EMAILS=admin@example.com
-VITE_EMAILJS_SERVICE_ID=your_service_id
-VITE_EMAILJS_TEMPLATE_ID=your_template_id
-VITE_EMAILJS_TEMPLATE_ID=your_template_id2
-VITE_EMAILJS_PUBLIC_KEY=your_public_key
 ```
 > ⚠️ **Do not commit your `.env` file to GitHub!**
 
@@ -109,11 +105,9 @@ Each candidate entry follows this structure:
 - **Storage & Auth:** Firebase Firestore, Firebase Authentication, Firebase Storage
 - **State Management:** Redux Toolkit
 - **Other Libraries:**
-  - Axios - API requests
   - React Hook Form - Form handling
   - React Toastify - Notifications
   - Compressor.js - Image compression
-  - EmailJS - Sending emails
 
 ## 🚀 Deployment
 To deploy to Firebase Hosting:
@@ -143,40 +137,3 @@ This project is licensed under the MIT License.
 ---
 
 🔹 **Developed & Maintained by [Suresh IIFM Web Developer ](https://github.com/suresh475330)** 
-
-
-
-## After depolyment what to do
-
-🔹 1. Update URLs in Configuration Files
-✔ Update index.html → Ensure your meta tags and OG (Open Graph) tags have the correct deployed URL.
-✔ Update robots.txt → Replace https://yourwebsite.com with your actual deployed domain.
-Test robots.txt in Google Robots Testing Tool.
-
-🔹 2. Generate & Upload Sitemap.xml
-✔ Use an online sitemap generator or manually create a sitemap.xml file.
-✔ Upload it to the root of your website (https://iifmglobleverification.web.app/sitemap.xml).
-✔ Submit the sitemap to Google Search Console.
-
-🔹 3. Google Search Console & SEO
-✔ Verify your site on Google Search Console.
-✔ Submit sitemap.xml in Google Search Console.
-✔ Check for indexing issues or blocked pages.
-
-🔹 4. Security Enhancements
-✔ Enable HTTPS → Ensure your website has SSL enabled (should show 🔒 in the browser).
-✔ Check Firebase Firestore Security Rules → Confirm only admins can write to Firestore.
-✔ Check .env variables → Ensure no sensitive data is exposed in the frontend.
-
-🔹 5. Social Media & Branding
-✔ Add Favicon (favicon.ico) for browser tab visibility.
-✔ Test Social Media Share Preview (Facebook, Twitter, LinkedIn) using Meta Sharing Debugger.
-
-🔹 6. Performance Optimization
-✔ Run Lighthouse Audit in Chrome DevTools (F12 → "Lighthouse") to check for performance & SEO improvements.
-✔ Optimize images & assets to reduce load time.
-
-🔹 7. Test Everything in Production
-✔ Test all forms, authentication, search, and candidate management.
-✔ Check for broken links and 404 pages.
-✔ Verify that admin access works correctly and unauthorized users cannot access restricted pages.

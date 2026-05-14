@@ -3,7 +3,6 @@ import { collection, getDocs, increment, where,getDoc, doc, addDoc, serverTimest
 import { db } from "../config/firebaseConfig";
 import { toast } from "react-toastify";
 import { uploadImageToFirebase, deleteImageFromStorage } from "../utils/firebassImages";
-// import sendCandidateNotification from "../utils/candidateActionNotify";
 
 
 export const updateCandidateCounts = async (department, academicYear, isAdding = true) => {
@@ -105,21 +104,6 @@ export const deleteCandidate = createAsyncThunk(
 
       // Delete candidate document from Firestore
       await deleteDoc(candidateRef);
-
-      // // Send email after deletion
-      // const success = await sendCandidateNotification(
-      //   {
-      //     name: candidateData.name,
-      //     reg_no: candidateData.registerNo,
-      //     department: candidateData.department,
-      //     academic_year: candidateData.academicYear,
-      //   },
-      //   "Deleted"
-      // );
-
-      // if (!success) {
-      //   console.warn("Candidate email notification failed to send.");
-      // }
 
       // Update candidate counts after deletion
       await updateCandidateCounts(department, academicYear, false);

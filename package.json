@@ -10,7 +10,6 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@emailjs/browser": "^4.4.1",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
     "@fontsource/lato": "^5.2.5",
@@ -19,18 +18,15 @@
     "@mui/icons-material": "^6.4.7",
     "@mui/material": "^6.4.6",
     "@reduxjs/toolkit": "^2.6.0",
-    "axios": "^1.8.1",
     "compressorjs": "^1.2.1",
     "crypto-js": "^4.2.0",
     "firebase": "^11.4.0",
     "react": "^19.2.1",
     "react-dom": "^19.2.1",
-    "react-google-recaptcha": "^3.1.0",
     "react-hook-form": "^7.54.2",
     "react-redux": "^9.2.0",
     "react-router-dom": "^7.2.0",
-    "react-toastify": "^11.0.5",
-    "swiper": "^11.2.5"
+    "react-toastify": "^11.0.5"
   },
   "devDependencies": {
     "@eslint/js": "^9.21.0",

@@ -50,21 +50,3 @@ code {
   max-width: 600px; /* Adjust the max width */
   margin: auto;
 }
-
-.swiper-wrapper {
-  height: 300px; /* Set a uniform height for all slides */
-}
-
-.swiper-slide img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover; /* Ensures images fit properly */
-  border-radius: 8px; /* Optional: Rounded corners */
-}
-
-/* Responsive - Adjusts image height for smaller screens */
-@media (max-width: 768px) {
-  .swiper-wrapper {
-    height: 200px; /* Adjust height for mobile */
-  }
-}

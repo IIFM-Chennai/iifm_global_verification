@@ -11,7 +11,6 @@ import {
   LinearProgress,
 } from "@mui/material";
 import { toast } from "react-toastify";
-import { useNavigate } from "react-router-dom";
 
 const departments = [
   "HVAC",
@@ -45,7 +44,6 @@ const academicYears = [
 
 const AddCandidate = () => {
   const dispatch = useDispatch();
-  const navigate = useNavigate();
   const { addCandidateLoading } = useSelector((state) => state.admin);
 
   const [formData, setFormData] = useState({
@@ -115,7 +113,7 @@ const AddCandidate = () => {
         });
         setPreview({ markSheet: "", certificate: "", idCardFront: "", idCardBack: "" });
         setUploadProgress({ markSheet: 0, certificate: 0, idCardFront: 0, idCardBack: 0 });
-        navigate("/dashboard");
+
       }
     });
   };

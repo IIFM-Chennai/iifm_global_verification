@@ -6,6 +6,13 @@
       "**/.*",
       "**/node_modules/**"
     ],
+    "redirects": [
+      {
+        "source": "**",
+        "destination": "https://verify.iifmacademy.com",
+        "type": 301
+      }
+    ],
     "headers": [
       {
         "source": "**",

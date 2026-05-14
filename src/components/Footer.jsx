@@ -60,7 +60,7 @@ const Footer = () => {
             📞 +91 99622 91220
           </Typography>
           <Typography variant="body2">
-            ✉️ iifmjobs@gmail.com
+            ✉️ training@iifmacademy.com
           </Typography>
         </Box>
 
